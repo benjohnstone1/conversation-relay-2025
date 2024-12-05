@@ -1,5 +1,5 @@
 const Airtable = require("airtable");
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config();
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
   process.env.AIRTABLE_BASE_ID
@@ -22,17 +22,18 @@ async function getLatestRecord() {
 
     let recordObj = {
       conversationRelayParams: {
-        dtmfDetection: true, //add
-        interruptByDtmf: true, //add
-        interruptible: true, //add
+        dtmfDetection: record.get("dtmfDetection") || false, // undefined if unchecked so set to false
+        interruptByDtmf: record.get("interruptByDtmf") || false,
+        interruptible: record.get("interruptible") || false,
         language: record.get("Language") || "en-US",
-        profanityFilter: true, // add
-        speechModel: "nova-2-general", //add
+        profanityFilter: record.get("profanityFilter") || false,
+        speechModel: record.get("speechModel") || "nova-2-general",
         transcriptionProvider:
           record.get("transcriptionProvider") || "deepgram",
-        ttsProvider: "google", //add
-        voice: record.get("Voice") || "",
-        welcomeGreeting: "Hello it's Ben!", // add
+        ttsProvider: record.get("ttsProvider") || "google",
+        voice: record.get("Voice") || "en-US-Journey-0",
+        welcomeGreeting:
+          record.get("welcomeGreeting") || "Hello, how can I help?",
       },
       prompt: record.get("Prompt") || "",
       profile: record.get("User Profile") || "",
@@ -42,13 +43,16 @@ async function getLatestRecord() {
       model: record.get("Model") || "",
       changeSTT: record.get("SPIChangeSTT") || false,
       recording: record.get("Recording") || false,
-      tools: "", //add
+      tools: record.get("tools") || "",
     };
+
+    console.log(recordObj.conversationRelayParams.profanityFilter);
     return recordObj;
   } catch (error) {
     console.error("Error fetching record:", error);
     throw error;
   }
 }
+getLatestRecord();
 
 module.exports = { base, getLatestRecord };

@@ -24,14 +24,10 @@ async function registerVoiceClient(textService, callSid) {
     });
     accessToken.addGrant(grant);
 
-    console.log(accessToken.toJwt());
-
     const headers = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Credentials": true,
     };
-
-    // Include identity and token in a JSON response
     return {
       statusCode: 200,
       headers: headers,

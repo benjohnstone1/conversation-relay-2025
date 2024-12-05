@@ -94,7 +94,7 @@ app.post("/incoming", async (req, res) => {
 
     addLog(
       "info",
-      `language : ${record.conversationRelayParams.language}, voice : ${record.conversationRelayParams.voice}`
+      `language : ${record.conversationRelayParams.language}, voice : ${record.conversationRelayParams.voice}, profanityFilter : ${record.conversationRelayParams.profanityFilter}`
     );
 
     const response = `<Response>
