@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PieChart from "./PieChart";
+// import PieChart from "./PieChart";
 
 import { Box, Label, Button } from "@twilio-paste/core";
 
@@ -36,7 +36,7 @@ const LatencyVisualizer = (props) => {
       <Button onClick={averageResponseTime} variant="secondary">
         Get Average Reponse
       </Button>
-      <PieChart width="100" height="100" />
+      {/* <PieChart width="100" height="100" /> */}
     </Box>
   );
 };

@@ -215,7 +215,8 @@ const UseCasePicker = (props) => {
     const getConfig = async () => {
       try {
         const config = await axios.get(useCaseURL);
-        setConfig(config.data.Items);
+        // setConfig(config.data.Items); //array [{}, {}]
+        setConfig(config.data);
       } catch (e) {
         console.log(e);
       }
