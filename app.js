@@ -92,7 +92,7 @@ app.post("/incoming", async (req, res) => {
     // console.log("Get latest record ", record);
 
     // Initialize GPT service
-    gptService = new GptService(record.model);
+    gptService = new GptService(record.model, wsClient);
 
     gptService.userContext.push({ role: "system", content: record.prompt });
     gptService.userContext.push({ role: "system", content: record.profile });
@@ -123,8 +123,16 @@ app.post("/incoming", async (req, res) => {
   }
 });
 
+function sendEventToClient(ws, msg) {
+  console.log(msg);
+  ws.send(JSON.stringify(msg));
+}
+
+let wsClient;
+
 app.ws("/clientSocket", (ws) => {
   console.log("WebSocket connection established");
+  wsClient = ws;
 
   ws.on("message", (msg) => {
     console.log("received message: ", msg);
@@ -133,7 +141,7 @@ app.ws("/clientSocket", (ws) => {
     if (data.type === "setup") {
       let data = {
         type: "setup",
-        token: Date.now(), //update token to timestamp?
+        token: Date.now(), //update token to
       };
       ws.send(JSON.stringify(data));
     }
@@ -167,6 +175,8 @@ app.ws("/sockets", (ws) => {
     ws.on("message", function message(data) {
       const msg = JSON.parse(data);
       console.log(msg);
+      // Send conversation relay message to client websocket
+      sendEventToClient(wsClient, msg);
       if (msg.type === "setup") {
         addLog("convrelay", `convrelay socket setup ${msg.callSid}`);
         callSid = msg.callSid;
@@ -195,6 +205,7 @@ app.ws("/sockets", (ws) => {
       }
 
       if (msg.type === "interrupt") {
+        sendEventToClient(wsClient, msg);
         addLog(
           "convrelay",
           "convrelay interrupt: utteranceUntilInterrupt: " +
@@ -223,6 +234,13 @@ app.ws("/sockets", (ws) => {
       console.log(`Interaction ${icount}: GPT -> TTS: ${gptReply}`.green);
       //addLog('info', gptReply);
       addLog("gpt", `GPT -> convrelay: Interaction ${icount}: ${gptReply}`);
+
+      let msg = {
+        type: "text",
+        token: gptReply,
+      };
+
+      sendEventToClient(wsClient, msg);
       textService.sendText(gptReply, final);
     });
 
