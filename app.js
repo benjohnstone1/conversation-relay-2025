@@ -123,6 +123,36 @@ app.post("/incoming", async (req, res) => {
   }
 });
 
+app.ws("/clientSocket", (ws) => {
+  console.log("WebSocket connection established");
+
+  ws.on("message", (msg) => {
+    console.log("received message: ", msg);
+    let data = JSON.parse(msg);
+
+    if (data.type === "setup") {
+      let data = {
+        type: "setup",
+        token: Date.now(), //update token to timestamp?
+      };
+      ws.send(JSON.stringify(data));
+    }
+  });
+
+  ws.on("ping", () => {
+    console.log("ping received");
+  });
+
+  ws.on("error", (err) => {
+    console.log("WebSocket error: {}", err);
+  });
+
+  ws.on("close", () => {
+    console.log("WebSocket connection closed");
+    // removeWsConn(ws);
+  });
+});
+
 app.ws("/sockets", (ws) => {
   try {
     ws.on("error", console.error);

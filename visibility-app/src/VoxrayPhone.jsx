@@ -4,7 +4,6 @@ import { Device } from "@twilio/voice-sdk";
 import "./styles/VoxrayPhone.css";
 import audiovisualizer from "./templates/audiovisualizer";
 // import AudioDevices from "./components/AudioDevices";
-// import DBProfile from "./components/DBProfile";
 // import ReactAudioVisualizer from "./components/ReactAudioVisualizer";
 import LatencyVisualizer from "./components/LatencyVisualizer";
 

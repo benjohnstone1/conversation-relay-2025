@@ -125,19 +125,6 @@ const Visualizer = forwardRef((props, ref) => {
           overflowY: "auto", // Enable vertical scrolling
         }}
       />
-
-      {/* <div>
-        <span style={{ color: "blue" }}>{messageArr}</span>
-        <span style={{ color: "green" }}>{messageArr}</span>.
-      </div> */}
-      {/* <ul>
-        {messageArr.map((item, index) => (
-          <li key={index}>{item}</li>
-        ))}
-      </ul> */}
-      {/* consider adding ability to color different lines, cannot do this with textarea
-       also need to add scrolling and function calling */}
-      {/* <div>{messages}</div> */}
     </Box>
   );
 });

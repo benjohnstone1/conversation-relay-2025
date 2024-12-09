@@ -28,7 +28,6 @@ const UseCasePicker = (props) => {
 
   const useCaseURL = process.env.REACT_APP_GET_USE_CASE_URL;
   const updateURL = process.env.REACT_APP_UPDATE_USE_CASE_URL;
-  const refreshApartmentsURL = process.env.REACT_APP_REFRESH_APARTMENTS_URL;
 
   const [template, setTemplate] = useState("0");
   const [isOpen, setIsOpen] = useState(false);
@@ -125,7 +124,6 @@ const UseCasePicker = (props) => {
   }
 
   const callTo = async () => {
-    // Setup Websocket
     if (activeCall) {
       return;
     } else {
@@ -185,7 +183,7 @@ const UseCasePicker = (props) => {
 
   const resetDemo = async () => {
     handleToast(
-      "Refreshing apartment data and resetting use case configuration",
+      "Resetting initial use case configuration",
       "neutral",
       3000,
       "resetDemo"
@@ -195,8 +193,6 @@ const UseCasePicker = (props) => {
       handleUpdate(item);
     });
     try {
-      const refreshApartments = await axios.post(refreshApartmentsURL);
-      console.log(refreshApartments);
       toaster.pop("resetDemo");
       handleToast("Refreshed data!", "success", 3000, "resetDemoSuccess");
     } catch (e) {
