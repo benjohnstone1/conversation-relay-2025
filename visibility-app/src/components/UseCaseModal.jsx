@@ -52,6 +52,8 @@ export function UseCaseModal(props) {
 
     const updateURL = process.env.REACT_APP_UPDATE_USE_CASE_URL;
 
+    console.log(updateURL);
+
     try {
       await axios.post(updateURL, data);
       toaster.pop("neutralId");

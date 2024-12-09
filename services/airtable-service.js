@@ -45,14 +45,68 @@ async function getLatestRecord() {
       recording: record.get("Recording") || false,
       tools: record.get("tools") || "",
     };
-
-    console.log(recordObj.conversationRelayParams.profanityFilter);
     return recordObj;
   } catch (error) {
     console.error("Error fetching record:", error);
     throw error;
   }
 }
-getLatestRecord();
 
-module.exports = { base, getLatestRecord };
+async function updateLatestRecord(data) {
+  // currently hardcoding recordId = recmlB0LVe3qL30rD
+  // make sure to update this
+  try {
+    let recordObj = {
+      dtmfDetection: data.conversationRelayParams.dtmfDetection,
+      interruptByDtmf: data.conversationRelayParams.interruptByDtmf,
+      interruptible: data.conversationRelayParams.interruptible,
+      Language: data.conversationRelayParams.language, //capitolized (consider changing in base)
+      profanityFilter: data.conversationRelayParams.profanityFilter,
+      speechModel: data.conversationRelayParams.speechModel,
+      transcriptionProvider: data.conversationRelayParams.transcriptionProvider,
+      ttsProvider: data.conversationRelayParams.ttsProvider,
+      Voice: data.conversationRelayParams.voice, //capitolized (consider changing in base)
+      welcomeGreeting: data.conversationRelayParams.welcomeGreeting,
+      // Prompt: data.prompt, //capitolized (consider changing in base)
+      // Inventory: data.inventory,
+      // Example: data.example,
+      // Model: data.model,
+      // SPIChangeSTT: data.changeSTT,
+      // Recording: data.recording,
+      tools: data.tools,
+    };
+
+    let record = await base("builder").update("recmlB0LVe3qL30rD", recordObj);
+    console.log("Updated record:", record);
+    return {
+      status: 200,
+    };
+  } catch (error) {
+    console.error("Error updating record:", error);
+    throw error;
+  }
+}
+
+let data = {
+  conversationRelayParams: {
+    dtmfDetection: true,
+    interruptByDtmf: true,
+    interruptible: true,
+    language: "en-GB",
+    profanityFilter: true,
+    speechModel: "nova-2-general",
+    transcriptionProvider: "deepgram",
+    ttsProvider: "google",
+    voice: "en-US-Journey-O",
+    welcomeGreeting: "Hello, how can I help?",
+  },
+  prompt: "",
+  inventory: "",
+  example: "",
+  model: "gpt-4o-2024-08-06",
+  changeSTT: false,
+  recording: false,
+  tools: "",
+};
+
+module.exports = { base, getLatestRecord, updateLatestRecord };

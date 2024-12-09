@@ -12,7 +12,10 @@ const { TextService } = require("./services/text-service");
 const { recordingService } = require("./services/recording-service");
 const { registerVoiceClient } = require("./services/register-voice-client");
 const { prompt, userProfile, orderHistory } = require("./services/prompt");
-const { getLatestRecord } = require("./services/airtable-service");
+const {
+  getLatestRecord,
+  updateLatestRecord,
+} = require("./services/airtable-service");
 
 const app = express();
 ExpressWs(app);
@@ -26,6 +29,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.static(path.join(__dirname, "./visibility-app/build")));
+app.use(express.json());
 
 // Declare global variable
 let gptService;
@@ -63,10 +67,18 @@ app.get("/get-use-cases", async (req, res) => {
   res.json([record]);
 });
 
+// Route to update Airtable record
+app.post("/update-use-cases", async (req, res) => {
+  console.log(req.body);
+  updatedRecord = await updateLatestRecord(req.body);
+  console.log(updatedRecord);
+  res.send(updatedRecord);
+});
+
 // Route to register voice client
 app.get("/register-voice-client", async (req, res) => {
   token = await registerVoiceClient();
-  console.log(token);
+  console.log("Registered voice client");
   res.send(token.body);
 });
 

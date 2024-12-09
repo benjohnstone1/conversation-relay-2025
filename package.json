@@ -18,7 +18,7 @@
     "colors": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "^4.19.2",
+    "express": "^4.21.2",
     "express-ws": "^5.0.2",
     "log-timestamp": "^0.3.0",
     "node-fetch": "^2.7.0",
