@@ -64,6 +64,7 @@ You can generate Airtable access tokens at the [link](https://airtable.com/creat
 ```bash
 cd visibility-app
 npm install
+cp env.example .env
 ```
 
 In your Twilio Account create a Twiml App and configure the incoming voice url to accept your incoming call e.g. "https://your-server.ngrok.io/incoming" update .env with your Twiml App sid

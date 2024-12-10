@@ -13,7 +13,7 @@ const { recordingService } = require("./services/recording-service");
 const { registerVoiceClient } = require("./services/register-voice-client");
 const { prompt, userProfile, orderHistory } = require("./services/prompt");
 const {
-  getLatestRecord,
+  getLatestRecords,
   updateLatestRecord,
 } = require("./services/airtable-service");
 
@@ -34,7 +34,7 @@ app.use(express.json());
 // Declare global variable
 let gptService;
 let textService;
-let record;
+let records;
 // Add this code after creating the Express app
 
 // Handled by our React App
@@ -63,8 +63,8 @@ app.get("/logs", (req, res) => {
 
 // Route to retrieve Airtable records
 app.get("/get-use-cases", async (req, res) => {
-  record = await getLatestRecord();
-  res.json([record]);
+  records = await getLatestRecords();
+  res.json(records);
 });
 
 // Route to update Airtable record

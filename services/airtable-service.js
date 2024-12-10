@@ -5,11 +5,11 @@ const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
   process.env.AIRTABLE_BASE_ID
 );
 
-async function getLatestRecord() {
+async function getLatestRecords() {
   try {
     let records = await base("builder")
       .select({
-        maxRecords: 1,
+        // maxRecords: 1,
         sort: [{ field: "Updated", direction: "desc" }],
       })
       .firstPage();
@@ -17,35 +17,37 @@ async function getLatestRecord() {
     if (records.length === 0) {
       throw new Error("No records found");
     }
-
-    let record = records[0];
-
-    let recordObj = {
-      conversationRelayParams: {
-        dtmfDetection: record.get("dtmfDetection") || false, // undefined if unchecked so set to false
-        interruptByDtmf: record.get("interruptByDtmf") || false,
-        interruptible: record.get("interruptible") || false,
-        language: record.get("Language") || "en-US",
-        profanityFilter: record.get("profanityFilter") || false,
-        speechModel: record.get("speechModel") || "nova-2-general",
-        transcriptionProvider:
-          record.get("transcriptionProvider") || "deepgram",
-        ttsProvider: record.get("ttsProvider") || "google",
-        voice: record.get("Voice") || "en-US-Journey-0",
-        welcomeGreeting:
-          record.get("welcomeGreeting") || "Hello, how can I help?",
-      },
-      prompt: record.get("Prompt") || "",
-      profile: record.get("User Profile") || "",
-      orders: record.get("Orders") || "",
-      inventory: record.get("Inventory") || "",
-      example: record.get("Example") || "",
-      model: record.get("Model") || "",
-      changeSTT: record.get("SPIChangeSTT") || false,
-      recording: record.get("Recording") || false,
-      tools: record.get("tools") || "",
-    };
-    return recordObj;
+    let recArr = [];
+    for (var i = 0; i < records.length; i++) {
+      let recordObj = {
+        conversationRelayParams: {
+          dtmfDetection: records[i].get("dtmfDetection") || false, // undefined if unchecked so set to false
+          interruptByDtmf: records[i].get("interruptByDtmf") || false,
+          interruptible: records[i].get("interruptible") || false,
+          language: records[i].get("Language") || "en-US",
+          profanityFilter: records[i].get("profanityFilter") || false,
+          speechModel: records[i].get("speechModel") || "nova-2-general",
+          transcriptionProvider:
+            records[i].get("transcriptionProvider") || "deepgram",
+          ttsProvider: records[i].get("ttsProvider") || "google",
+          voice: records[i].get("Voice") || "en-US-Journey-0",
+          welcomeGreeting:
+            records[i].get("welcomeGreeting") || "Hello, how can I help?",
+        },
+        prompt: records[i].get("Prompt") || "",
+        profile: records[i].get("User Profile") || "",
+        orders: records[i].get("Orders") || "",
+        inventory: records[i].get("Inventory") || "",
+        example: records[i].get("Example") || "",
+        model: records[i].get("Model") || "",
+        changeSTT: records[i].get("SPIChangeSTT") || false,
+        recording: records[i].get("Recording") || false,
+        tools: records[i].get("tools") || "",
+        title: records[i].get("Title"),
+      };
+      recArr.push(recordObj);
+    }
+    return recArr;
   } catch (error) {
     console.error("Error fetching record:", error);
     throw error;
@@ -53,9 +55,17 @@ async function getLatestRecord() {
 }
 
 async function updateLatestRecord(data) {
-  // currently hardcoding recordId = recmlB0LVe3qL30rD
-  // make sure to update this
   try {
+    // Find recordId by Title
+    let records = await base("builder")
+      .select({
+        maxRecords: 1,
+        sort: [{ field: "Updated", direction: "desc" }],
+        filterByFormula: `{Title} = "${data.title}"`,
+      })
+      .firstPage();
+
+    // Create record object update
     let recordObj = {
       dtmfDetection: data.conversationRelayParams.dtmfDetection,
       interruptByDtmf: data.conversationRelayParams.interruptByDtmf,
@@ -76,7 +86,7 @@ async function updateLatestRecord(data) {
       tools: data.tools,
     };
 
-    let record = await base("builder").update("recmlB0LVe3qL30rD", recordObj);
+    let record = await base("builder").update(records[0].id, recordObj);
     console.log("Updated record:", record);
     return {
       status: 200,
@@ -87,26 +97,32 @@ async function updateLatestRecord(data) {
   }
 }
 
-let data = {
-  conversationRelayParams: {
-    dtmfDetection: true,
-    interruptByDtmf: true,
-    interruptible: true,
-    language: "en-GB",
-    profanityFilter: true,
-    speechModel: "nova-2-general",
-    transcriptionProvider: "deepgram",
-    ttsProvider: "google",
-    voice: "en-US-Journey-O",
-    welcomeGreeting: "Hello, how can I help?",
-  },
-  prompt: "",
-  inventory: "",
-  example: "",
-  model: "gpt-4o-2024-08-06",
-  changeSTT: false,
-  recording: false,
-  tools: "",
-};
+// Sample data
+// let data = {
+//   conversationRelayParams: {
+//     dtmfDetection: true,
+//     interruptByDtmf: true,
+//     interruptible: true,
+//     language: "en-GB",
+//     profanityFilter: true,
+//     speechModel: "nova-2-general",
+//     transcriptionProvider: "deepgram",
+//     ttsProvider: "google",
+//     voice: "en-US-Journey-O",
+//     welcomeGreeting: "Hello, how can I help?",
+//   },
+//   prompt: "",
+//   inventory: "",
+//   example: "",
+//   model: "gpt-4o-2024-08-06",
+//   changeSTT: false,
+//   recording: false,
+//   tools: "",
+//   title: "Owl Shoes ISV Summit SF",
+// };
 
-module.exports = { base, getLatestRecord, updateLatestRecord };
+module.exports = {
+  base,
+  updateLatestRecord,
+  getLatestRecords,
+};
