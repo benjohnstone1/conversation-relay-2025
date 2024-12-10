@@ -136,7 +136,7 @@ async function updateLatestRecord(data) {
     };
 
     let record = await base("builder").update(records[0].id, recordObj);
-    console.log("Updated record:", record);
+    console.log("Updated record:", records[0].id);
     return {
       status: 200,
     };

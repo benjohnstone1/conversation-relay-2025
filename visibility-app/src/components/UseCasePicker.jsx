@@ -146,7 +146,7 @@ const UseCasePicker = (props) => {
         // Place call
         var params = {
           To: "test:conversationRelay",
-          useCaseTitle: config[template].title,
+          Title: config[template].title,
           uiwebsocketId: websocketId,
         };
 

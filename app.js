@@ -31,6 +31,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.static(path.join(__dirname, "./visibility-app/build")));
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Declare global variable
 let gptService;
@@ -70,9 +71,8 @@ app.get("/get-use-cases", async (req, res) => {
 
 // Route to update Airtable record
 app.post("/update-use-cases", async (req, res) => {
-  console.log(req.body);
+  console.log("Updating record: ", req.body.title);
   updatedRecord = await updateLatestRecord(req.body);
-  console.log(updatedRecord);
   res.send(updatedRecord);
 });
 
@@ -87,11 +87,9 @@ app.post("/incoming", async (req, res) => {
   try {
     logs.length = 0; // Clear logs
     addLog("info", "incoming call started");
-
     // Get latest record from airtable
-    console.log("req body is ", req.body);
-    //update based on request
-    record = await getRecordByTitle({ title: "Owl Shoes ISV Summit SF" });
+    console.log("Title is ", req.body.Title);
+    record = await getRecordByTitle({ title: req.body.Title });
 
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
