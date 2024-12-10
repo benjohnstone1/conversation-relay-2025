@@ -65,9 +65,12 @@ You can generate Airtable access tokens at the [link](https://airtable.com/creat
 cd visibility-app
 npm install
 cp env.example .env
+npm run build
 ```
 
-In your Twilio Account create a Twiml App and configure the incoming voice url to accept your incoming call e.g. "https://your-server.ngrok.io/incoming" update .env with your Twiml App sid
+In your Twilio Account create a Twiml App and configure the incoming voice url to accept your incoming call e.g. "https://your-server.ngrok.io/incoming" update .env with your Twiml App sid (see how to create twiml app: https://help.twilio.com/articles/223180928-How-Do-I-Create-a-TwiML-App-)
+
+Create API Key(see how to create api key https://www.twilio.com/docs/iam/api-keys)
 
 ### 5. Start Ngrok
 
