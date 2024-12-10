@@ -15,6 +15,7 @@ const { prompt, userProfile, orderHistory } = require("./services/prompt");
 const {
   getLatestRecords,
   updateLatestRecord,
+  getRecordByTitle,
 } = require("./services/airtable-service");
 
 const app = express();
@@ -88,12 +89,12 @@ app.post("/incoming", async (req, res) => {
     addLog("info", "incoming call started");
 
     // Get latest record from airtable
-    record = await getLatestRecord();
-    // console.log("Get latest record ", record);
+    console.log("req body is ", req.body);
+    //update based on request
+    record = await getRecordByTitle({ title: "Owl Shoes ISV Summit SF" });
 
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
-
     gptService.userContext.push({ role: "system", content: record.prompt });
     gptService.userContext.push({ role: "system", content: record.profile });
     gptService.userContext.push({ role: "system", content: record.orders });
