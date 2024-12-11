@@ -175,6 +175,8 @@ app.ws("/sockets", (ws) => {
       console.log(msg);
       // Send conversation relay message to client websocket
       sendEventToClient(wsClient, msg);
+
+      // Handle conversation relay message types
       if (msg.type === "setup") {
         addLog("convrelay", `convrelay socket setup ${msg.callSid}`);
         callSid = msg.callSid;
@@ -204,7 +206,6 @@ app.ws("/sockets", (ws) => {
       }
 
       if (msg.type === "interrupt") {
-        sendEventToClient(wsClient, msg);
         addLog(
           "convrelay",
           "convrelay interrupt: utteranceUntilInterrupt: " +
@@ -213,7 +214,6 @@ app.ws("/sockets", (ws) => {
             msg.durationUntilInterruptMs
         );
         gptService.interrupt();
-        // console.log('Todo: add interruption handling');
       }
 
       if (msg.type === "error") {
@@ -224,7 +224,6 @@ app.ws("/sockets", (ws) => {
 
       if (msg.type === "dtmf") {
         addLog("convrelay", "convrelay dtmf: " + msg.digit);
-
         console.log("Todo: add dtmf handling");
       }
     });
@@ -248,6 +247,12 @@ app.ws("/sockets", (ws) => {
       async (functionName, functionArgs, functionResponse) => {
         addLog("gpt", `Function ${functionName} with args ${functionArgs}`);
         addLog("gpt", `Function Response: ${functionResponse}`);
+
+        let msg = {
+          type: "functionCall",
+          token: `Called function ${functionName} with args ${functionArgs}`,
+        };
+        sendEventToClient(wsClient, msg);
 
         if (functionName == "changeLanguage" && record.changeSTT) {
           addLog("convrelay", `convrelay ChangeLanguage to: ${functionArgs}`);

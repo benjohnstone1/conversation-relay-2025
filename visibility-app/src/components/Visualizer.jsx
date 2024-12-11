@@ -33,7 +33,7 @@ const Visualizer = forwardRef((props, ref) => {
       console.log("WebSocket call opened:", event);
       socket.send(JSON.stringify({ type: "setup" }));
       setMessages(" --- Connected to ConversationRelay ---\n");
-      setMessages((prev) => prev + props.welcomeGreeting + "\n");
+      setMessages((prev) => prev + props.welcomeGreeting);
     };
 
     socket.onmessage = function (event) {
@@ -52,7 +52,7 @@ const Visualizer = forwardRef((props, ref) => {
         message = JSON.stringify(data) + "\n";
       }
       if (data.type === "interrupt") {
-        message = JSON.stringify(data);
+        message = "\n" + JSON.stringify(data);
       }
       if (data.type === "prompt" && data.voicePrompt) {
         // User
@@ -67,7 +67,7 @@ const Visualizer = forwardRef((props, ref) => {
         }
       }
       if (data.type === "functionCall") {
-        message = data.token + "\n";
+        message = "\n" + data.token + "\n";
       }
 
       setMessages((prev) => {
