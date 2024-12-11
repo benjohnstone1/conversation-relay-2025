@@ -114,7 +114,6 @@ app.post("/incoming", async (req, res) => {
         </ConversationRelay>
       </Connect>
     </Response>`;
-    // <Parameter name="uiConnId" value="B3Kb_d3SIAMCERA="/>
     res.type("text/xml");
     res.end(response.toString());
   } catch (err) {
@@ -179,12 +178,13 @@ app.ws("/sockets", (ws) => {
       if (msg.type === "setup") {
         addLog("convrelay", `convrelay socket setup ${msg.callSid}`);
         callSid = msg.callSid;
+        // to do - confirm if number is needed as calling from client
         gptService.setCallInfo("user phone number", msg.from);
 
         //trigger gpt to start
-        gptService.completion("hello", interactionCount);
-        interactionCount += 1;
+        // gptService.completion("hello", interactionCount);
 
+        interactionCount += 1;
         if (record.recording) {
           recordingService(textService, callSid).then(() => {
             console.log(

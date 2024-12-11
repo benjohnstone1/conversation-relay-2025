@@ -50,6 +50,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-transform-private-property-in-object": "^7.24.7"
+    "@babel/plugin-transform-private-property-in-object": "^7.24.7",
+    "@flydotio/dockerfile": "^0.5.9"
   }
 }

@@ -24,10 +24,10 @@ class GptService extends EventEmitter {
       // { 'role': 'system', 'content': prompt },
       // { 'role': 'system', 'content': userProfile },
       // { 'role': 'system', 'content': 'You should speak English as default, and forget previous conversations' },
-      {
-        role: "assistant",
-        content: "Hello! Welcome to Owl Shoes, how can i help you today",
-      },
+      // {
+      //   role: "assistant",
+      //   content: "Hello! Welcome to Owl Shoes, how can i help you today",
+      // },
     ]),
       (this.partialResponseIndex = 0);
     this.isInterrupted = false;
