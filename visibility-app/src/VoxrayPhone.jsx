@@ -5,7 +5,7 @@ import "./styles/VoxrayPhone.css";
 import audiovisualizer from "./templates/audiovisualizer";
 // import AudioDevices from "./components/AudioDevices";
 // import ReactAudioVisualizer from "./components/ReactAudioVisualizer";
-import LatencyVisualizer from "./components/LatencyVisualizer";
+// import LatencyVisualizer from "./components/LatencyVisualizer";
 
 // Twilio Paste
 import { Theme } from "@twilio-paste/core/dist/theme";
@@ -16,6 +16,9 @@ import UseCasePicker from "./components/UseCasePicker";
 export const VoxrayPhone = () => {
   const [device, setDevice] = useState();
   const [loading, setLoading] = useState(true);
+
+  //we need to authenticate this and fetch from back-end service once call is completed
+  const recordingUrl = "";
 
   let voiceToken = useRef("");
 
@@ -89,7 +92,7 @@ export const VoxrayPhone = () => {
           <Box display="flex" flexDirection="column">
             <Box padding="space50">
               <Heading as="h2" variant="heading20">
-                ConversationRelay Test Client
+                ConversationRelay Hackathon 2025
                 {/* <AudioDevices /> */}
               </Heading>
               {/* <DBProfile /> */}
@@ -97,7 +100,7 @@ export const VoxrayPhone = () => {
               <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
               <canvas id="audio-visualizer"></canvas>
               {/* <ReactAudioVisualizer /> */}
-              <LatencyVisualizer />
+              {/* <LatencyVisualizer /> */}
             </Box>
           </Box>
         </Theme.Provider>

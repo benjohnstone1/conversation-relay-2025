@@ -10,7 +10,10 @@ const path = require("path");
 const { GptService } = require("./services/gpt-service");
 const { TextService } = require("./services/text-service");
 const { recordingService } = require("./services/recording-service");
-const { registerVoiceClient } = require("./services/register-voice-client");
+const {
+  registerVoiceClient,
+  getRecording,
+} = require("./services/register-voice-client");
 const { prompt, userProfile, orderHistory } = require("./services/prompt");
 const {
   getLatestRecords,
@@ -81,6 +84,14 @@ app.get("/register-voice-client", async (req, res) => {
   token = await registerVoiceClient();
   console.log("Registered voice client");
   res.send(token.body);
+});
+
+// Get Recording
+app.get("/get-recording", async (req, res) => {
+  const callSid = req.query.callSid;
+  recording = await getRecording(callSid);
+  console.log(recording);
+  res.send(recording);
 });
 
 app.post("/incoming", async (req, res) => {

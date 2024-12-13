@@ -43,24 +43,29 @@ async function registerVoiceClient(textService, callSid) {
   }
 }
 
-const getRecording = async (callSid) => {
+async function recordingService(textService, callSid) {
   try {
-    const recordings = await client.recordings.list({
-      callSid: callSid,
-      limit: 1,
+    // const client = require("twilio")(
+    //   process.env.TWILIO_ACCOUNT_SID,
+    //   process.env.TWILIO_AUTH_TOKEN
+    // );
+
+    // textService.sendText({partialResponseIndex: null, partialResponse: 'This call will be recorded.'}, 0);
+    const recording = await client.calls(callSid).recordings.create({
+      recordingChannels: "dual",
     });
 
-    return {
-      accSid: process.env.TWILIO_ACCOUNT_SID,
-      recordingSid: recordings[0].sid,
-    };
-  } catch (e) {
-    console.log(e);
-    return {
-      accSid: process.env.TWILIO_ACCOUNT_SID,
-      recordingSid: "",
-    };
+    console.log(`Recording Created: ${recording.sid}`.red);
+  } catch (err) {
+    console.log(err);
   }
+}
+
+const getRecording = async (callSid) => {
+  return {
+    accSid: process.env.TWILIO_ACCOUNT_SID,
+    recordingSid: "RE8966843e75f481c87c872b790ddd631f",
+  };
 };
 
-module.exports = { registerVoiceClient, getRecording };
+module.exports = { recordingService, registerVoiceClient, getRecording };

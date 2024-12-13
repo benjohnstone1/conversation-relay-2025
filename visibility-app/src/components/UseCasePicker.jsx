@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, act } from "react";
 import axios from "axios";
+import AudioPlayer from "./AudioPlayer";
 
 import {
   VisualPickerRadioGroup,
@@ -12,6 +13,7 @@ import {
   MediaObject,
   MediaBody,
   Stack,
+  Heading,
 } from "@twilio-paste/core";
 import { useToaster, Toaster } from "@twilio-paste/core/dist/toast";
 
@@ -32,6 +34,7 @@ const UseCasePicker = (props) => {
   const [template, setTemplate] = useState("0");
   const [isOpen, setIsOpen] = useState(false);
   const [config, setConfig] = useState(initialConfiguration);
+  const [recordingUrl, setRecordingUrl] = useState("");
 
   let activeCall;
   let websocketId;
@@ -61,6 +64,26 @@ const UseCasePicker = (props) => {
     console.log("updating websocket ID to: " + newId);
     websocketId = newId;
     callTo();
+  };
+
+  const getRecordingURL = async (callSid) => {
+    const res = await axios.get(
+      "http://localhost:3000/get-recording?callSid=" + callSid
+    );
+    const recUrl =
+      "https://api.twilio.com/2010-04-01/Accounts/" +
+      res.data.accSid +
+      "/Recordings/" +
+      res.data.recordingSid +
+      ".mp3";
+
+    if (res.data.recordingSid) {
+      console.log("Recording url is", recUrl);
+      setRecordingUrl(recUrl);
+    } else {
+      console.log("No recording generated");
+      setRecordingUrl("");
+    }
   };
 
   function setupCallEventHandlers(call) {
@@ -101,6 +124,8 @@ const UseCasePicker = (props) => {
 
     call.on("disconnect", function (conn) {
       console.log("Call disconnected\n");
+      // get the recording url here
+      getRecordingURL(conn.parameters.CallSid);
       activeCall = undefined;
     });
 
@@ -157,7 +182,7 @@ const UseCasePicker = (props) => {
     }
   };
 
-  const hangupCall = () => {
+  const hangupCall = async () => {
     if (!activeCall) {
       console.log("Call object not created yet");
       return;
@@ -308,6 +333,9 @@ const UseCasePicker = (props) => {
           config[template].conversationRelayParams.welcomeGreeting
         }
       />
+
+      <Heading as="h2">Twilio Call Recording</Heading>
+      <AudioPlayer audioUrl={recordingUrl} />
     </div>
   );
 };
