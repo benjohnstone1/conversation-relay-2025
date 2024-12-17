@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, act } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import AudioPlayer from "./AudioPlayer";
 
@@ -19,6 +19,8 @@ import { useToaster, Toaster } from "@twilio-paste/core/dist/toast";
 
 import { CallIcon } from "@twilio-paste/icons/esm/CallIcon";
 import { CallFailedIcon } from "@twilio-paste/icons/esm/CallFailedIcon";
+import { MicrophoneOffIcon } from "@twilio-paste/icons/esm/MicrophoneOffIcon";
+import { MicrophoneOnIcon } from "@twilio-paste/icons/esm/MicrophoneOnIcon";
 
 import UseCaseModal from "./UseCaseModal";
 import Visualizer from "./Visualizer";
@@ -30,10 +32,12 @@ const UseCasePicker = (props) => {
 
   const useCaseURL = process.env.REACT_APP_GET_USE_CASE_URL;
   const updateURL = process.env.REACT_APP_UPDATE_USE_CASE_URL;
+  const recordingURL = process.env.REACT_APP_RECORDING_URL;
 
   const [template, setTemplate] = useState("0");
   const [isOpen, setIsOpen] = useState(false);
   const [config, setConfig] = useState(initialConfiguration);
+  const [isMuted, setMuted] = useState(false);
   const [recordingUrl, setRecordingUrl] = useState("");
 
   let activeCall;
@@ -67,9 +71,7 @@ const UseCasePicker = (props) => {
   };
 
   const getRecordingURL = async (callSid) => {
-    const res = await axios.get(
-      "http://localhost:3000/get-recording?callSid=" + callSid
-    );
+    const res = await axios.get(recordingURL + "?callSid=" + callSid);
     const recUrl =
       "https://api.twilio.com/2010-04-01/Accounts/" +
       res.data.accSid +
@@ -97,6 +99,12 @@ const UseCasePicker = (props) => {
       if (hasEarlyMedia) {
         console.log("Has early media");
       }
+    });
+
+    call.on("mute", (isMute, call) => {
+      console.log("Call mute status now:", isMute);
+      setMuted(isMute);
+      activeCall = call;
     });
 
     call.on("cancel", function (conn) {
@@ -182,7 +190,16 @@ const UseCasePicker = (props) => {
     }
   };
 
+  const handleMutePress = () => {
+    console.log("Mute pressed");
+    if (activeCall) {
+      activeCall.mute(!isMuted);
+      console.log("Muting call", activeCall);
+    }
+  };
+
   const hangupCall = async () => {
+    console.log(activeCall);
     if (!activeCall) {
       console.log("Call object not created yet");
       return;
@@ -257,7 +274,15 @@ const UseCasePicker = (props) => {
         </Button>
         <Button onClick={hangupCall} variant="destructive" loading={loading}>
           Disconnect
-          <CallFailedIcon decorative={false} title="Description of icon" />
+          <CallFailedIcon decorative={false} title="Disconnect" />
+        </Button>
+        {/* The following is placeholder - need to fix mute/unmute and call controls - activeCall is undefined when this happens */}
+        <Button onClick={handleMutePress} variant="secondary">
+          {isMuted ? (
+            <MicrophoneOffIcon decorative={false} title="Mute" />
+          ) : (
+            <MicrophoneOnIcon decorative={false} title="UnMute" />
+          )}
         </Button>
       </Stack>
       <UseCaseModal

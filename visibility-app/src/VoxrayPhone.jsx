@@ -6,21 +6,21 @@ import audiovisualizer from "./templates/audiovisualizer";
 // import AudioDevices from "./components/AudioDevices";
 // import ReactAudioVisualizer from "./components/ReactAudioVisualizer";
 // import LatencyVisualizer from "./components/LatencyVisualizer";
+import AudioProcessor from "./components/AudioProcessor.ts";
 
 // Twilio Paste
 import { Theme } from "@twilio-paste/core/dist/theme";
-import { Box, Heading, Label } from "@twilio-paste/core";
+import { Box, Heading, Label, Switch } from "@twilio-paste/core";
 
 import UseCasePicker from "./components/UseCasePicker";
 
 export const VoxrayPhone = () => {
   const [device, setDevice] = useState();
   const [loading, setLoading] = useState(true);
-
-  //we need to authenticate this and fetch from back-end service once call is completed
-  const recordingUrl = "";
+  const [noiseCancellation, setNoiseCancellation] = useState(false);
 
   let voiceToken = useRef("");
+  const processor = new AudioProcessor();
 
   const registerTwilioDeviceHandlers = (device) => {
     device.on("incoming", function (conn) {
@@ -55,6 +55,26 @@ export const VoxrayPhone = () => {
       console.log("Device destroyed\n");
       setDevice(undefined);
     });
+  };
+
+  const enableAudioProcessor = async () => {
+    if (!device.audio._processor) {
+      await device.audio.addProcessor(processor);
+      console.log("Added audio processor");
+      setNoiseCancellation(true);
+    } else {
+      console.log("Audio processor already enabled");
+    }
+  };
+
+  const disableAudioProcessor = async () => {
+    if (device.audio._processor) {
+      await device.audio.removeProcessor(device.audio._processor);
+      console.log("Disabled audio processor");
+      setNoiseCancellation(false);
+    } else {
+      console.log("No audio processor to remove");
+    }
   };
 
   useEffect(() => {
@@ -96,6 +116,17 @@ export const VoxrayPhone = () => {
                 {/* <AudioDevices /> */}
               </Heading>
               {/* <DBProfile /> */}
+              {/* The following is placeholder - need to fix enable/disable and call controls - activeCall is undefined when this happens */}
+              <Switch
+                value={noiseCancellation}
+                onClick={(e) => {
+                  noiseCancellation === false
+                    ? enableAudioProcessor()
+                    : disableAudioProcessor();
+                }}
+              >
+                Enable Noise Cancellation (Placeholder)
+              </Switch>
               <UseCasePicker device={device} loading={loading} />
               <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
               <canvas id="audio-visualizer"></canvas>
