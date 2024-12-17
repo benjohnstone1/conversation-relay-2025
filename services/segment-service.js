@@ -10,7 +10,7 @@ const analytics = new Analytics({ writeKey: process.env.WRITE_KEY });
 const spaceID = process.env.SPACE_ID;
 
 //add a user
-function addUser(id, name, phone, address) {
+function addUser(id, name, phone) {
   console.log("add user start");
   try {
     analytics.identify({
@@ -18,7 +18,6 @@ function addUser(id, name, phone, address) {
       traits: {
         name: name,
         phone: phone,
-        address: address,
       },
     });
   } catch (error) {

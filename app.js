@@ -10,11 +10,12 @@ const path = require("path");
 const { GptService } = require("./services/gpt-service");
 const { TextService } = require("./services/text-service");
 const { addUser, addInteraction } = require("./services/segment-service");
-const { recordingService } = require("./services/recording-service");
+// const { recordingService } = require("./services/recording-service");
 const {
   registerVoiceClient,
   getRecording,
-} = require("./services/register-voice-client");
+  recordingService,
+} = require("./services/twilio-service");
 const { prompt, userProfile, orderHistory } = require("./services/prompt");
 const {
   getLatestRecords,
@@ -106,7 +107,7 @@ app.post("/incoming", async (req, res) => {
     // Trigger Segment identity
     let user = req.body.Caller;
     // what should be the unique id?
-    addUser(user, user.replace("client:", ""), user, "");
+    addUser(user, user.replace("client:", ""), user);
 
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
@@ -202,7 +203,7 @@ app.ws("/sockets", (ws) => {
       if (msg.type === "setup") {
         addLog("convrelay", `convrelay socket setup ${msg.callSid}`);
         callSid = msg.callSid;
-        caller = msg.from.replace("client:", "");
+        caller = msg.from;
         // to do - confirm if number is needed as calling from client
         gptService.setCallInfo("user phone number", msg.from);
 

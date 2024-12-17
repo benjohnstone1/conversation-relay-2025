@@ -9,13 +9,21 @@ const client = require("twilio")(
   process.env.TWILIO_AUTH_TOKEN
 );
 
-async function registerVoiceClient(textService, callSid) {
+async function recordingService(textService, callSid) {
   try {
-    // const client = require("twilio")(
-    //   process.env.TWILIO_ACCOUNT_SID,
-    //   process.env.TWILIO_AUTH_TOKEN
-    // );
+    // textService.sendText({partialResponseIndex: null, partialResponse: 'This call will be recorded.'}, 0);
+    const recording = await client.calls(callSid).recordings.create({
+      recordingChannels: "dual",
+    });
 
+    console.log(`Recording Created: ${recording.sid}`.red);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function registerVoiceClient() {
+  try {
     const accessToken = new AccessToken(
       process.env.TWILIO_ACCOUNT_SID,
       process.env.TWILIO_API_KEY,
@@ -43,29 +51,24 @@ async function registerVoiceClient(textService, callSid) {
   }
 }
 
-async function recordingService(textService, callSid) {
+const getRecording = async (callSid) => {
   try {
-    // const client = require("twilio")(
-    //   process.env.TWILIO_ACCOUNT_SID,
-    //   process.env.TWILIO_AUTH_TOKEN
-    // );
-
-    // textService.sendText({partialResponseIndex: null, partialResponse: 'This call will be recorded.'}, 0);
-    const recording = await client.calls(callSid).recordings.create({
-      recordingChannels: "dual",
+    const recordings = await client.recordings.list({
+      callSid: callSid,
+      limit: 1,
     });
 
-    console.log(`Recording Created: ${recording.sid}`.red);
-  } catch (err) {
-    console.log(err);
+    return {
+      accSid: process.env.TWILIO_ACCOUNT_SID,
+      recordingSid: recordings[0].sid,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      accSid: process.env.TWILIO_ACCOUNT_SID,
+      recordingSid: "",
+    };
   }
-}
-
-const getRecording = async (callSid) => {
-  return {
-    accSid: process.env.TWILIO_ACCOUNT_SID,
-    recordingSid: "RE8966843e75f481c87c872b790ddd631f",
-  };
 };
 
-module.exports = { recordingService, registerVoiceClient, getRecording };
+module.exports = { registerVoiceClient, getRecording, recordingService };
