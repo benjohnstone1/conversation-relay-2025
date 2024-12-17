@@ -9,6 +9,7 @@ const path = require("path");
 
 const { GptService } = require("./services/gpt-service");
 const { TextService } = require("./services/text-service");
+const { addUser, addInteraction } = require("./services/segment-service");
 const { recordingService } = require("./services/recording-service");
 const {
   registerVoiceClient,
@@ -102,8 +103,14 @@ app.post("/incoming", async (req, res) => {
     console.log("Title is ", req.body.Title);
     record = await getRecordByTitle({ title: req.body.Title });
 
+    // Trigger Segment identity
+    let user = req.body.Caller;
+    // what should be the unique id?
+    addUser(user, user.replace("client:", ""), user, "");
+
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
+    // Replace Airtable records with data from Segment
     gptService.userContext.push({ role: "system", content: record.prompt });
     gptService.userContext.push({ role: "system", content: record.profile });
     gptService.userContext.push({ role: "system", content: record.orders });
@@ -179,6 +186,7 @@ app.ws("/sockets", (ws) => {
     textService = new TextService(ws);
 
     let interactionCount = 0;
+    let caller;
 
     // Incoming from MediaStream
     ws.on("message", function message(data) {
@@ -186,11 +194,15 @@ app.ws("/sockets", (ws) => {
       console.log(msg);
       // Send conversation relay message to client websocket
       sendEventToClient(wsClient, msg);
+      if (caller) {
+        addInteraction(caller, `Message: ${msg.type}`, msg);
+      }
 
       // Handle conversation relay message types
       if (msg.type === "setup") {
         addLog("convrelay", `convrelay socket setup ${msg.callSid}`);
         callSid = msg.callSid;
+        caller = msg.from.replace("client:", "");
         // to do - confirm if number is needed as calling from client
         gptService.setCallInfo("user phone number", msg.from);
 
@@ -250,6 +262,7 @@ app.ws("/sockets", (ws) => {
       };
 
       sendEventToClient(wsClient, msg);
+      addInteraction(caller, `Message: ${msg.type}`, msg);
       textService.sendText(gptReply, final);
     });
 
@@ -264,6 +277,9 @@ app.ws("/sockets", (ws) => {
           token: `Called function ${functionName} with args ${functionArgs}`,
         };
         sendEventToClient(wsClient, msg);
+
+        // Add function call to Segment
+        addInteraction(caller, `${msg.type}: ${functionName}`, msg);
 
         if (functionName == "changeLanguage" && record.changeSTT) {
           addLog("convrelay", `convrelay ChangeLanguage to: ${functionArgs}`);
