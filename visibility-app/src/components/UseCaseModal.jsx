@@ -133,10 +133,6 @@ export function UseCaseModal(props) {
   } catch (e) {
     selectedVoiceOptions = voiceOptions["google"].language["en-US"];
   }
-  // let selectedVoiceOptions =
-  //   voiceOptions[config[template]?.conversationRelayParams.ttsProvider]
-  //     .language[config[template]?.conversationRelayParams.language] ||
-  //   voiceOptions["google"].language["en-US"];
 
   return (
     <div>

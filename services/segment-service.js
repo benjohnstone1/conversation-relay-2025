@@ -148,9 +148,42 @@ const addInteraction = (id, eventName, data) => {
   }
 };
 
+const getProfile = (id) => {
+  const username = profileToken;
+  const password = "";
+  // encode base64
+  const credentials = Buffer.from(`${username}:${password}`).toString("base64");
+
+  // set headers
+  const config = {
+    headers: {
+      Authorization: `Basic ${credentials}`,
+    },
+  };
+
+  console.log("get_profile from segment for id: " + id);
+
+  // HTTP GET
+  axios
+    .get(
+      `https://profiles.segment.com/v1/spaces/${spaceID}/collections/users/profiles/user_id:${id}/traits`,
+      config
+    )
+    .then((response) => {
+      const traits = response.data.traits;
+      console.log(traits);
+      return traits;
+    })
+    .catch((error) => {
+      console.error("get_profile error:", error);
+      return "";
+    });
+};
+
 module.exports = {
   addUser,
   addInteraction,
+  getProfile,
 };
 
 // addUser('8967', 'john black', '+491234567', 'Berlin Germany');

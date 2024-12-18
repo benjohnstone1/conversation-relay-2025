@@ -9,13 +9,17 @@ const path = require("path");
 
 const { GptService } = require("./services/gpt-service");
 const { TextService } = require("./services/text-service");
-const { addUser, addInteraction } = require("./services/segment-service");
+const {
+  addUser,
+  addInteraction,
+  getProfile,
+} = require("./services/segment-service");
 const {
   registerVoiceClient,
   getRecording,
   startRecording,
 } = require("./services/twilio-service");
-const { prompt, userProfile, orderHistory } = require("./services/prompt");
+// const { prompt, userProfile, orderHistory } = require("./services/prompt");
 const {
   getLatestRecords,
   updateLatestRecord,
@@ -99,7 +103,7 @@ app.post("/incoming", async (req, res) => {
   try {
     logs.length = 0; // Clear logs
     addLog("info", "incoming call started");
-    // Get latest record from airtable
+    // Get Record from Airtable by Title
     console.log("Title is ", req.body.Title);
     record = await getRecordByTitle({ title: req.body.Title });
 
@@ -107,15 +111,18 @@ app.post("/incoming", async (req, res) => {
     let user = req.body.Caller;
     // what should be the unique id?
     addUser(user, user.replace("client:", ""), user);
+    const profile = await getProfile(user);
+    console.log("profile data is ", profile);
 
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
     // Replace Airtable records with data from Segment
     gptService.userContext.push({ role: "system", content: record.prompt });
-    gptService.userContext.push({ role: "system", content: record.profile });
-    gptService.userContext.push({ role: "system", content: record.orders });
+    // gptService.userContext.push({ role: "system", content: record.profile }); //Airtable
+    gptService.userContext.push({ role: "system", content: profile }); //Segment
+    gptService.userContext.push({ role: "system", content: record.orders }); //replace with Segment order history
     gptService.userContext.push({ role: "system", content: record.inventory });
-    gptService.userContext.push({ role: "system", content: record.example });
+    // gptService.userContext.push({ role: "system", content: record.example }); //this was empty commenting out for now
     gptService.userContext.push({
       role: "system",
       content: `You can speak in many languages, but use default language ${record.conversationRelayParams.language} for this conversation from now on! Remember it as the default language, even you change language in between. treat en-US and en-GB etc. as different languages.`,
