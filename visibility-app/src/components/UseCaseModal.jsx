@@ -84,8 +84,8 @@ export function UseCaseModal(props) {
 
   let selectedSpeechModelOptions =
     speechModelOptions[
-      config[template].conversationRelayParams.transcriptionProvider
-    ];
+      config[template]?.conversationRelayParams.transcriptionProvider
+    ] || speechModelOptions["google"];
 
   const voiceOptions = {
     google: {
@@ -125,10 +125,18 @@ export function UseCaseModal(props) {
     },
   };
 
-  let selectedVoiceOptions =
-    voiceOptions[config[template].conversationRelayParams.ttsProvider].language[
-      config[template].conversationRelayParams.language
-    ];
+  let selectedVoiceOptions;
+  try {
+    selectedVoiceOptions =
+      voiceOptions[config[template].conversationRelayParams.ttsProvider]
+        .language[config[template].conversationRelayParams.language];
+  } catch (e) {
+    selectedVoiceOptions = voiceOptions["google"].language["en-US"];
+  }
+  // let selectedVoiceOptions =
+  //   voiceOptions[config[template]?.conversationRelayParams.ttsProvider]
+  //     .language[config[template]?.conversationRelayParams.language] ||
+  //   voiceOptions["google"].language["en-US"];
 
   return (
     <div>
@@ -229,7 +237,7 @@ export function UseCaseModal(props) {
                 <HelpText as="div" color="colorTextWeak">
                   Voice for Text-to-Speech, choices vary based on ttsProvider
                 </HelpText>
-                {config[template].conversationRelayParams.ttsProvider && (
+                {config[template]?.conversationRelayParams.ttsProvider && (
                   <Select
                     value={config[template].conversationRelayParams.voice}
                     onChange={(e) => {

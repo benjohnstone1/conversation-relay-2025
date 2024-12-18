@@ -14,6 +14,7 @@ import {
   MediaBody,
   Stack,
   Heading,
+  SkeletonLoader,
 } from "@twilio-paste/core";
 import { useToaster, Toaster } from "@twilio-paste/core/dist/toast";
 
@@ -25,7 +26,6 @@ import { MicrophoneOnIcon } from "@twilio-paste/icons/esm/MicrophoneOnIcon";
 import UseCaseModal from "./UseCaseModal";
 import Visualizer from "./Visualizer";
 import audiovisualizer from "../templates/audiovisualizer";
-import { initialConfiguration } from "../templates/initialConfiguration";
 
 const UseCasePicker = (props) => {
   const visualizerRef = useRef();
@@ -36,7 +36,7 @@ const UseCasePicker = (props) => {
 
   const [template, setTemplate] = useState("0");
   const [isOpen, setIsOpen] = useState(false);
-  const [config, setConfig] = useState(initialConfiguration);
+  const [config, setConfig] = useState([]);
   const [isMuted, setMuted] = useState(false);
   const [recordingUrl, setRecordingUrl] = useState("");
   const [call, setCall] = useState(null);
@@ -274,7 +274,7 @@ const UseCasePicker = (props) => {
           Hangup
           <CallFailedIcon decorative={false} title="Disconnect" />
         </Button>
-        <Button onClick={handleMute} variant="secondary">
+        <Button onClick={handleMute} variant="secondary" loading={loading}>
           {isMuted ? "Muted" : "Mute"}
           {isMuted ? (
             <MicrophoneOffIcon decorative={false} title="Mute" />
@@ -291,6 +291,7 @@ const UseCasePicker = (props) => {
         handleClose={handleClose}
         handleConfigUpdate={handleConfigUpdate}
       />
+
       <VisualPickerRadioGroup
         legend="Select Use Case"
         name="visual-picker"
@@ -299,61 +300,66 @@ const UseCasePicker = (props) => {
           setTemplate(newTemplate);
         }}
       >
-        {config.map((item, index) => (
-          <VisualPickerRadio key={index} value={index.toString()}>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <MediaObject verticalAlign="center">
-                <MediaFigure spacing="space50"></MediaFigure>
-                <MediaBody>
-                  <Text as="div" fontWeight="fontWeightSemibold">
-                    {item.title}
-                  </Text>
-                  <Text as="div" color="colorTextWeak">
-                    TTS Provider: {item.conversationRelayParams.ttsProvider}{" "}
-                    Voice: {item.conversationRelayParams.voice}
-                  </Text>
-                </MediaBody>
-              </MediaObject>
-              <Box>
+        {loading ? (
+          <SkeletonLoader height="150px" />
+        ) : (
+          config.map((item, index) => (
+            <VisualPickerRadio key={index} value={index.toString()}>
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <MediaObject verticalAlign="center">
                   <MediaFigure spacing="space50"></MediaFigure>
                   <MediaBody>
                     <Text as="div" fontWeight="fontWeightSemibold">
-                      Welcome:
+                      {item.title}
                     </Text>
                     <Text as="div" color="colorTextWeak">
-                      {item.conversationRelayParams.welcomeGreeting}
+                      TTS Provider: {item.conversationRelayParams.ttsProvider}{" "}
+                      Voice: {item.conversationRelayParams.voice}
                     </Text>
                   </MediaBody>
                 </MediaObject>
+                <Box>
+                  <MediaObject verticalAlign="center">
+                    <MediaFigure spacing="space50"></MediaFigure>
+                    <MediaBody>
+                      <Text as="div" fontWeight="fontWeightSemibold">
+                        Welcome:
+                      </Text>
+                      <Text as="div" color="colorTextWeak">
+                        {item.conversationRelayParams.welcomeGreeting}
+                      </Text>
+                    </MediaBody>
+                  </MediaObject>
+                </Box>
+                <Box display="flex" columnGap="space50">
+                  {template === index.toString() ? (
+                    <StatusBadge as="span" variant="ConnectivityAvailable">
+                      Enabled
+                    </StatusBadge>
+                  ) : (
+                    <StatusBadge as="span" variant="ConnectivityOffline">
+                      Disabled
+                    </StatusBadge>
+                  )}
+                  <Button onClick={handleConfigure} variant="secondary">
+                    Configure
+                  </Button>
+                </Box>
               </Box>
-              <Box display="flex" columnGap="space50">
-                {template === index.toString() ? (
-                  <StatusBadge as="span" variant="ConnectivityAvailable">
-                    Enabled
-                  </StatusBadge>
-                ) : (
-                  <StatusBadge as="span" variant="ConnectivityOffline">
-                    Disabled
-                  </StatusBadge>
-                )}
-                <Button onClick={handleConfigure} variant="secondary">
-                  Configure
-                </Button>
-              </Box>
-            </Box>
-          </VisualPickerRadio>
-        ))}
+            </VisualPickerRadio>
+          ))
+        )}
       </VisualPickerRadioGroup>
+
       <Visualizer
         updateWebsocketId={updateWebsocketId}
         ref={visualizerRef}
         welcomeGreeting={
-          config[template].conversationRelayParams.welcomeGreeting
+          config[template]?.conversationRelayParams.welcomeGreeting
         }
       />
 
