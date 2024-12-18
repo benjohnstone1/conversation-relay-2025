@@ -61,7 +61,7 @@ export const VoxrayPhone = () => {
     if (!device.audio._processor) {
       await device.audio.addProcessor(processor);
       console.log("Added audio processor");
-      setNoiseCancellation(true);
+      // setNoiseCancellation(true); // this is causing the issue
     } else {
       console.log("Audio processor already enabled");
     }
@@ -71,7 +71,7 @@ export const VoxrayPhone = () => {
     if (device.audio._processor) {
       await device.audio.removeProcessor(device.audio._processor);
       console.log("Disabled audio processor");
-      setNoiseCancellation(false);
+      // setNoiseCancellation(false); // this is causing the issue
     } else {
       console.log("No audio processor to remove");
     }
@@ -93,7 +93,7 @@ export const VoxrayPhone = () => {
     };
     const createVoiceDevice = async () => {
       const myDevice = await new Device(voiceToken.current, {
-        logLevel: 5,
+        logLevel: 3,
         codecPreferences: ["opus", "pcmu"],
       });
       setDevice(myDevice);

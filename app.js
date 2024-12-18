@@ -10,11 +10,10 @@ const path = require("path");
 const { GptService } = require("./services/gpt-service");
 const { TextService } = require("./services/text-service");
 const { addUser, addInteraction } = require("./services/segment-service");
-// const { recordingService } = require("./services/recording-service");
 const {
   registerVoiceClient,
   getRecording,
-  recordingService,
+  startRecording,
 } = require("./services/twilio-service");
 const { prompt, userProfile, orderHistory } = require("./services/prompt");
 const {
@@ -212,7 +211,7 @@ app.ws("/sockets", (ws) => {
 
         interactionCount += 1;
         if (record.recording) {
-          recordingService(textService, callSid).then(() => {
+          startRecording(textService, callSid).then(() => {
             console.log(
               `Twilio -> Starting recording for ${callSid}`.underline.red
             );

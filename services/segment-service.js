@@ -6,27 +6,9 @@ const profileToken = process.env.PROFILE_TOKEN;
 
 // instantiation
 const analytics = new Analytics({ writeKey: process.env.WRITE_KEY });
-
 const spaceID = process.env.SPACE_ID;
 
-//add a user
-function addUser(id, name, phone) {
-  console.log("add user start");
-  try {
-    analytics.identify({
-      userId: id,
-      traits: {
-        name: name,
-        phone: phone,
-      },
-    });
-  } catch (error) {
-    console.error("Error adding user:", error);
-  }
-
-  console.log("add user done");
-}
-
+/*
 function addEvent(id, ts, order, price, shipment) {
   try {
     analytics.track({
@@ -44,21 +26,6 @@ function addEvent(id, ts, order, price, shipment) {
   }
 
   console.log("add addEvent done");
-}
-
-function addInteraction(id, eventName, data) {
-  try {
-    analytics.track({
-      userId: id,
-      event: eventName,
-      properties: {
-        timestamp: Date.now(),
-        data,
-      },
-    });
-  } catch (error) {
-    console.error("Error adding addEvent:", error);
-  }
 }
 
 function getProfile(id) {
@@ -146,13 +113,44 @@ function readData(jsonData) {
   }
 }
 
+*/
+
+//add a user
+const addUser = (id, name, phone) => {
+  console.log("add user start");
+  try {
+    analytics.identify({
+      userId: id,
+      traits: {
+        name: name,
+        phone: phone,
+      },
+    });
+  } catch (error) {
+    console.error("Error adding user:", error);
+  }
+
+  console.log("add user done");
+};
+
+const addInteraction = (id, eventName, data) => {
+  try {
+    analytics.track({
+      userId: id,
+      event: eventName,
+      properties: {
+        timestamp: Date.now(),
+        data,
+      },
+    });
+  } catch (error) {
+    console.error("Error adding addEvent:", error);
+  }
+};
+
 module.exports = {
   addUser,
-  addEvent,
   addInteraction,
-  getProfile,
-  getEvents,
-  readData,
 };
 
 // addUser('8967', 'john black', '+491234567', 'Berlin Germany');

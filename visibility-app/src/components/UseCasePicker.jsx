@@ -31,7 +31,7 @@ const UseCasePicker = (props) => {
   const visualizerRef = useRef();
 
   const useCaseURL = process.env.REACT_APP_GET_USE_CASE_URL;
-  const updateURL = process.env.REACT_APP_UPDATE_USE_CASE_URL;
+  // const updateURL = process.env.REACT_APP_UPDATE_USE_CASE_URL;
   const recordingURL = process.env.REACT_APP_RECORDING_URL;
 
   const [template, setTemplate] = useState("0");
@@ -39,6 +39,7 @@ const UseCasePicker = (props) => {
   const [config, setConfig] = useState(initialConfiguration);
   const [isMuted, setMuted] = useState(false);
   const [recordingUrl, setRecordingUrl] = useState("");
+  const [call, setCall] = useState(null);
 
   let activeCall;
   let websocketId;
@@ -88,7 +89,7 @@ const UseCasePicker = (props) => {
     }
   };
 
-  function setupCallEventHandlers(call) {
+  const setupCallEventHandlers = (call) => {
     if (!call) {
       console.error("undefined call object");
       return;
@@ -102,19 +103,17 @@ const UseCasePicker = (props) => {
     });
 
     call.on("mute", (isMute, call) => {
-      console.log("Call mute status now:", isMute);
-      setMuted(isMute);
-      activeCall = call;
+      console.log("Muted stated is", isMute);
     });
 
     call.on("cancel", function (conn) {
       console.log("Call cancel");
-      activeCall = undefined;
+      setCall(null);
     });
 
     call.on("reject", function (conn) {
       console.log("Call reject");
-      activeCall = undefined;
+      setCall(null);
     });
 
     call.on("accept", function (conn) {
@@ -132,19 +131,18 @@ const UseCasePicker = (props) => {
 
     call.on("disconnect", function (conn) {
       console.log("Call disconnected\n");
-      // get the recording url here
       getRecordingURL(conn.parameters.CallSid);
-      activeCall = undefined;
+      setCall(null);
     });
 
     call.on("transportClose", function (conn) {
       console.log("Call transportClose.\n");
-      activeCall = undefined;
+      setCall(null);
     });
 
     call.on("error", function (error) {
       console.log("Call error: " + error.message + " (" + error.code + ")\n");
-      activeCall = undefined;
+      setCall(null);
     });
 
     call.on("warning", function (name) {
@@ -154,10 +152,11 @@ const UseCasePicker = (props) => {
     call.on("warning-cleared", function (name) {
       console.log("Network warning cleared: " + name + "\n");
     });
-  }
+  };
 
   const callTo = async () => {
-    if (activeCall) {
+    if (call) {
+      console.log("Active call already placed");
       return;
     } else {
       // We also need to check if websocket connection exists
@@ -186,26 +185,35 @@ const UseCasePicker = (props) => {
         activeCall = await device.connect({ params });
         setupCallEventHandlers(activeCall);
         audiovisualizer.analyze(activeCall);
+        // add call to state - needed to persist between renders e.g. when muting/unmuting call
+        setCall(activeCall);
       }
     }
   };
 
-  const handleMutePress = () => {
-    console.log("Mute pressed");
-    if (activeCall) {
-      activeCall.mute(!isMuted);
-      console.log("Muting call", activeCall);
+  const handleMutePress = async () => {
+    if (!call) {
+      console.log("No active call");
+      return;
+    } else {
+      isMuted ? setMuted(false) : setMuted(true);
+      let mute = call.isMuted();
+      console.log("Muting call: ", !mute);
+      if (mute) {
+        call.mute(false);
+      } else {
+        call.mute(true);
+      }
     }
   };
 
   const hangupCall = async () => {
-    console.log(activeCall);
-    if (!activeCall) {
+    if (!call) {
       console.log("Call object not created yet");
       return;
     } else {
       // Disconnect call
-      activeCall.disconnect();
+      call.disconnect();
       // Close websocket connection
       websocketId = null;
       if (visualizerRef.current) {
@@ -214,46 +222,45 @@ const UseCasePicker = (props) => {
     }
   };
 
-  const handleUpdate = async (data) => {
-    try {
-      const res = await axios.post(updateURL, data);
-      console.log(res);
-    } catch (e) {
-      console.log("Error", e);
-    }
-  };
+  // const handleUpdate = async (data) => {
+  //   try {
+  //     const res = await axios.post(updateURL, data);
+  //     console.log(res);
+  //   } catch (e) {
+  //     console.log("Error", e);
+  //   }
+  // };
 
-  const resetDemo = async () => {
-    handleToast(
-      "Resetting initial use case configuration",
-      "neutral",
-      3000,
-      "resetDemo"
-    );
-    setConfig(initialConfiguration);
-    initialConfiguration.forEach((item) => {
-      handleUpdate(item);
-    });
-    try {
-      toaster.pop("resetDemo");
-      handleToast("Refreshed data!", "success", 3000, "resetDemoSuccess");
-    } catch (e) {
-      console.log(e);
-      toaster.pop("resetDemo");
-      handleToast(
-        "There was an error refreshing data",
-        "error",
-        3000,
-        "resetDemoError"
-      );
-    }
-  };
+  // const resetDemo = async () => {
+  //   handleToast(
+  //     "Resetting initial use case configuration",
+  //     "neutral",
+  //     3000,
+  //     "resetDemo"
+  //   );
+  //   setConfig(initialConfiguration);
+  //   initialConfiguration.forEach((item) => {
+  //     handleUpdate(item);
+  //   });
+  //   try {
+  //     toaster.pop("resetDemo");
+  //     handleToast("Refreshed data!", "success", 3000, "resetDemoSuccess");
+  //   } catch (e) {
+  //     console.log(e);
+  //     toaster.pop("resetDemo");
+  //     handleToast(
+  //       "There was an error refreshing data",
+  //       "error",
+  //       3000,
+  //       "resetDemoError"
+  //     );
+  //   }
+  // };
 
   useEffect(() => {
     const getConfig = async () => {
       try {
         const config = await axios.get(useCaseURL);
-        // setConfig(config.data.Items); //array [{}, {}]
         setConfig(config.data);
       } catch (e) {
         console.log(e);
@@ -266,9 +273,9 @@ const UseCasePicker = (props) => {
     <div>
       <Toaster {...toaster} />
       <Stack orientation="horizontal" spacing="space60">
-        <Button onClick={resetDemo} variant="secondary" loading={loading}>
+        {/* <Button onClick={resetDemo} variant="secondary" loading={loading}>
           Reset Demo
-        </Button>
+        </Button> */}
         <Button onClick={callTo} variant="primary" loading={loading}>
           Call <CallIcon decorative={false} title="make call" />
         </Button>
@@ -276,8 +283,8 @@ const UseCasePicker = (props) => {
           Disconnect
           <CallFailedIcon decorative={false} title="Disconnect" />
         </Button>
-        {/* The following is placeholder - need to fix mute/unmute and call controls - activeCall is undefined when this happens */}
         <Button onClick={handleMutePress} variant="secondary">
+          {isMuted ? "Muted" : "Mute"}
           {isMuted ? (
             <MicrophoneOffIcon decorative={false} title="Mute" />
           ) : (

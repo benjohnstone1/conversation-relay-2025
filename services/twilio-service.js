@@ -9,7 +9,7 @@ const client = require("twilio")(
   process.env.TWILIO_AUTH_TOKEN
 );
 
-async function recordingService(textService, callSid) {
+const startRecording = async (textService, callSid) => {
   try {
     // textService.sendText({partialResponseIndex: null, partialResponse: 'This call will be recorded.'}, 0);
     const recording = await client.calls(callSid).recordings.create({
@@ -20,9 +20,9 @@ async function recordingService(textService, callSid) {
   } catch (err) {
     console.log(err);
   }
-}
+};
 
-async function registerVoiceClient() {
+const registerVoiceClient = async () => {
   try {
     const accessToken = new AccessToken(
       process.env.TWILIO_ACCOUNT_SID,
@@ -49,7 +49,7 @@ async function registerVoiceClient() {
   } catch (err) {
     console.log(err);
   }
-}
+};
 
 const getRecording = async (callSid) => {
   try {
@@ -71,4 +71,4 @@ const getRecording = async (callSid) => {
   }
 };
 
-module.exports = { registerVoiceClient, getRecording, recordingService };
+module.exports = { registerVoiceClient, getRecording, startRecording };
