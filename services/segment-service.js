@@ -195,17 +195,20 @@ const getUserProfile = async (id) => {
   }
 };
 
+//to do - GG
+const updateUserProfile = async (id) => {
+  //
+};
+
 module.exports = {
   addUser,
   addVirtualAgent,
   addInteraction,
   getUserProfile,
+  updateUserProfile,
 };
 
 // addUser('8967', 'john black', '+491234567', 'Berlin Germany');
-
 // addEvent('8967', '2024-10-22', 'Medium eggplant pizza with sausages and AI sauce', 13, 'Delivery');
-
 // getEvents('8967');
-
 // getProfile('8967');
