@@ -61,7 +61,7 @@ export const VoxrayPhone = () => {
     if (!device.audio._processor) {
       await device.audio.addProcessor(processor);
       console.log("Added audio processor");
-      // setNoiseCancellation(true); // this is causing the issue
+      setNoiseCancellation(true); // this is causing the issue
     } else {
       console.log("Audio processor already enabled");
     }
@@ -71,7 +71,7 @@ export const VoxrayPhone = () => {
     if (device.audio._processor) {
       await device.audio.removeProcessor(device.audio._processor);
       console.log("Disabled audio processor");
-      // setNoiseCancellation(false); // this is causing the issue
+      setNoiseCancellation(false); // this is causing the issue
     } else {
       console.log("No audio processor to remove");
     }
@@ -91,6 +91,7 @@ export const VoxrayPhone = () => {
         }
       }
     };
+
     const createVoiceDevice = async () => {
       const myDevice = await new Device(voiceToken.current, {
         logLevel: 3,
@@ -116,7 +117,6 @@ export const VoxrayPhone = () => {
                 {/* <AudioDevices /> */}
               </Heading>
               {/* <DBProfile /> */}
-              {/* The following is placeholder - need to fix enable/disable and call controls - activeCall is undefined when this happens */}
               <Switch
                 value={noiseCancellation}
                 onClick={(e) => {
@@ -125,7 +125,8 @@ export const VoxrayPhone = () => {
                     : disableAudioProcessor();
                 }}
               >
-                Enable Noise Cancellation (Placeholder)
+                Enable Noise Cancellation (Placeholder for Krisp - acts like
+                mute for now)
               </Switch>
               <UseCasePicker device={device} loading={loading} />
               <Label htmlFor="audio-visualizer">Audio Visualizer</Label>

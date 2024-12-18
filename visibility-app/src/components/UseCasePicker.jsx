@@ -103,7 +103,8 @@ const UseCasePicker = (props) => {
     });
 
     call.on("mute", (isMute, call) => {
-      console.log("Muted stated is", isMute);
+      console.log("Call muted: ", isMute);
+      setMuted(isMute);
     });
 
     call.on("cancel", function (conn) {
@@ -191,19 +192,9 @@ const UseCasePicker = (props) => {
     }
   };
 
-  const handleMutePress = async () => {
-    if (!call) {
-      console.log("No active call");
-      return;
-    } else {
-      isMuted ? setMuted(false) : setMuted(true);
-      let mute = call.isMuted();
-      console.log("Muting call: ", !mute);
-      if (mute) {
-        call.mute(false);
-      } else {
-        call.mute(true);
-      }
+  const handleMute = async () => {
+    if (call) {
+      call.mute(!isMuted);
     }
   };
 
@@ -280,10 +271,10 @@ const UseCasePicker = (props) => {
           Call <CallIcon decorative={false} title="make call" />
         </Button>
         <Button onClick={hangupCall} variant="destructive" loading={loading}>
-          Disconnect
+          Hangup
           <CallFailedIcon decorative={false} title="Disconnect" />
         </Button>
-        <Button onClick={handleMutePress} variant="secondary">
+        <Button onClick={handleMute} variant="secondary">
           {isMuted ? "Muted" : "Mute"}
           {isMuted ? (
             <MicrophoneOffIcon decorative={false} title="Mute" />
