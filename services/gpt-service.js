@@ -3,7 +3,7 @@ const EventEmitter = require("events");
 const OpenAI = require("openai");
 const tools = require("../functions/function-manifest");
 
-const { prompt, userProfile, orderHistory } = require("./prompt");
+// const { prompt, userProfile, orderHistory } = require("./prompt");
 
 // Import all functions included in function manifest
 // Note: the function name and file name must be the same

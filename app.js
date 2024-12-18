@@ -11,8 +11,9 @@ const { GptService } = require("./services/gpt-service");
 const { TextService } = require("./services/text-service");
 const {
   addUser,
+  addVirtualAgent,
   addInteraction,
-  getProfile,
+  getUserProfile,
 } = require("./services/segment-service");
 const {
   registerVoiceClient,
@@ -111,15 +112,26 @@ app.post("/incoming", async (req, res) => {
     let user = req.body.Caller;
     // what should be the unique id?
     addUser(user, user.replace("client:", ""), user);
-    const profile = await getProfile(user);
-    console.log("profile data is ", profile);
+    const profile = await getUserProfile(user);
+    console.log(`profile returned: ${JSON.stringify(profile)}`.yellow);
+
+    // add virtual agent
+    addVirtualAgent(
+      record.title, //id
+      record.title, //name
+      record.prompt,
+      record.conversationRelayParams
+    );
 
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
     // Replace Airtable records with data from Segment
     gptService.userContext.push({ role: "system", content: record.prompt });
     // gptService.userContext.push({ role: "system", content: record.profile }); //Airtable
-    gptService.userContext.push({ role: "system", content: profile }); //Segment
+    gptService.userContext.push({
+      role: "system",
+      content: JSON.stringify(profile),
+    });
     gptService.userContext.push({ role: "system", content: record.orders }); //replace with Segment order history
     gptService.userContext.push({ role: "system", content: record.inventory });
     // gptService.userContext.push({ role: "system", content: record.example }); //this was empty commenting out for now

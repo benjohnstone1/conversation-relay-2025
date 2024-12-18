@@ -116,7 +116,7 @@ function readData(jsonData) {
 */
 
 //add a user
-const addUser = (id, name, phone) => {
+const addUser = async (id, name, phone) => {
   console.log("add user start");
   try {
     analytics.identify({
@@ -131,6 +131,24 @@ const addUser = (id, name, phone) => {
   }
 
   console.log("add user done");
+};
+
+const addVirtualAgent = (id, name, prompt, conversationRelayParams) => {
+  console.log("add virtual agent start");
+  try {
+    analytics.identify({
+      userId: id,
+      traits: {
+        name: name,
+        prompt: prompt,
+        conversationRelayParams: conversationRelayParams,
+      },
+    });
+  } catch (error) {
+    console.error("Error adding user:", error);
+  }
+
+  console.log("add virtual agent done");
 };
 
 const addInteraction = (id, eventName, data) => {
@@ -148,7 +166,7 @@ const addInteraction = (id, eventName, data) => {
   }
 };
 
-const getProfile = (id) => {
+const getUserProfile = async (id) => {
   const username = profileToken;
   const password = "";
   // encode base64
@@ -163,27 +181,25 @@ const getProfile = (id) => {
 
   console.log("get_profile from segment for id: " + id);
 
-  // HTTP GET
-  axios
-    .get(
+  try {
+    const response = await axios.get(
       `https://profiles.segment.com/v1/spaces/${spaceID}/collections/users/profiles/user_id:${id}/traits`,
       config
-    )
-    .then((response) => {
-      const traits = response.data.traits;
-      console.log(traits);
-      return traits;
-    })
-    .catch((error) => {
-      console.error("get_profile error:", error);
-      return "";
-    });
+    );
+
+    const traits = response.data.traits;
+    return traits;
+  } catch (e) {
+    console.log("get_profile error:", error);
+    return "";
+  }
 };
 
 module.exports = {
   addUser,
+  addVirtualAgent,
   addInteraction,
-  getProfile,
+  getUserProfile,
 };
 
 // addUser('8967', 'john black', '+491234567', 'Berlin Germany');
