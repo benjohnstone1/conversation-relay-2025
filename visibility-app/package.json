@@ -18,6 +18,7 @@
     "react-audio-visualize": "^1.2.0",
     "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "^18.3.1",
+    "react-international-phone": "^4.4.0",
     "react-scripts": "5.0.1",
     "react-use-websocket": "^4.8.1",
     "web-vitals": "^2.1.4"

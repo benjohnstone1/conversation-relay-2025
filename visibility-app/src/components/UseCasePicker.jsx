@@ -45,6 +45,7 @@ const UseCasePicker = (props) => {
   let websocketId;
 
   const device = props.device;
+  const phone = props.phone;
   const loading = props.loading;
 
   const toaster = useToaster();
@@ -178,10 +179,12 @@ const UseCasePicker = (props) => {
         console.log("websocketId is: " + websocketId);
         // Place call
         var params = {
-          To: "test:conversationRelay",
+          To: phone || "test:conversationRelay", // "e.g. client:+1647XXXXXXXX"
           Title: config[template].title,
           uiwebsocketId: websocketId,
         };
+
+        console.log(params);
 
         activeCall = await device.connect({ params });
         setupCallEventHandlers(activeCall);

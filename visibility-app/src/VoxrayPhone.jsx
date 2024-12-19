@@ -8,9 +8,19 @@ import audiovisualizer from "./templates/audiovisualizer";
 // import LatencyVisualizer from "./components/LatencyVisualizer";
 import AudioProcessor from "./components/AudioProcessor.ts";
 
+import { PhoneInput } from "react-international-phone";
+import "react-international-phone/style.css";
+
 // Twilio Paste
 import { Theme } from "@twilio-paste/core/dist/theme";
-import { Box, Heading, Label, Switch } from "@twilio-paste/core";
+import {
+  Box,
+  Heading,
+  Label,
+  Switch,
+  Input,
+  HelpText,
+} from "@twilio-paste/core";
 
 import UseCasePicker from "./components/UseCasePicker";
 
@@ -18,6 +28,7 @@ export const VoxrayPhone = () => {
   const [device, setDevice] = useState();
   const [loading, setLoading] = useState(true);
   const [noiseCancellation, setNoiseCancellation] = useState(false);
+  const [phone, setPhone] = useState("");
 
   let voiceToken = useRef("");
   const processor = new AudioProcessor();
@@ -128,7 +139,13 @@ export const VoxrayPhone = () => {
                 Enable Noise Cancellation (Placeholder for Krisp - acts like
                 mute for now)
               </Switch>
-              <UseCasePicker device={device} loading={loading} />
+              <Label required>Enter Phone Number</Label>
+              <PhoneInput
+                defaultCountry="us"
+                value={phone}
+                onChange={(phone) => setPhone(phone)}
+              />
+              <UseCasePicker device={device} phone={phone} loading={loading} />
               <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
               <canvas id="audio-visualizer"></canvas>
               {/* <ReactAudioVisualizer /> */}
