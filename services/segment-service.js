@@ -166,7 +166,7 @@ const addInteraction = (id, eventName, data) => {
 };
 const getUserProfile = async (id) => {
   //client:+15123485523 -> client%3A%2B15123485523
-  const userId = id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
+  const userId = id.replace(/\+/g, "%2B").replace(/:/g, "%3A");
   const baseUrl = `https://profiles.segment.com/v1/spaces/${spaceID}/collections/users/profiles/`;
   const traitsUrl = `${baseUrl}user_id:${userId}/traits`;
   console.log(traitsUrl);
@@ -183,10 +183,7 @@ const getUserProfile = async (id) => {
     },
   };
   try {
-    const response = await axios.get(
-      traitsUrl,
-      config
-    );
+    const response = await axios.get(traitsUrl, config);
     console.log("axios" + response);
     const traits = response.data.traits;
     console.log(traits);
@@ -195,23 +192,22 @@ const getUserProfile = async (id) => {
     console.log("get_profile error:", error);
     return "";
   }
-}
+};
 
 const updateUserProfile = async (id, traitName, traitValue) => {
   console.log(`update trait ${traitName} to ${traitValue} for profile ${id}`);
   //const userId = id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
   try {
-    analytics.identify(
-      id, {
+    analytics.identify(id, {
       [traitName]: traitValue,
-    },
-    );
+    });
+    console.log("update trait done");
+    return true;
   } catch (error) {
     console.error("Error updating trait:", error);
+    return false;
   }
-  console.log("update trait done");
 };
-
 
 module.exports = {
   addUser,
@@ -220,6 +216,8 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
 };
+
+// updateUserProfile("client:+16477782422", "creditCardLastFour", "1111");
 
 // addUser('8967', 'john black', '+491234567', 'Berlin Germany');
 // addEvent('8967', '2024-10-22', 'Medium eggplant pizza with sausages and AI sauce', 13, 'Delivery');
