@@ -201,12 +201,11 @@ const updateUserProfile = async (id, traitName, traitValue) => {
   console.log(`update trait ${traitKey} to ${traitValue} for profile ${id}`);
   //const userId = id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
   try {
-    analytics.identify({
-      userId: id,
-      traits: {
-        [traitName]: traitValue,
-      },
-    });
+    analytics.identify(
+      id, {
+      [traitName]: traitValue,
+    },
+    );
   } catch (error) {
     console.error("Error updating trait:", error);
   }
