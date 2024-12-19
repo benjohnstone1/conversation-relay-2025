@@ -265,98 +265,101 @@ const UseCasePicker = (props) => {
 
   return (
     <div>
-      <Toaster {...toaster} />
-      <Stack orientation="horizontal" spacing="space60">
-        {/* <Button onClick={resetDemo} variant="secondary" loading={loading}>
+      {loading ? (
+        <Box paddingY="space50">
+          <SkeletonLoader height="150px" />
+        </Box>
+      ) : (
+        <div>
+          <Toaster {...toaster} />
+          <Stack orientation="horizontal" spacing="space60">
+            {/* <Button onClick={resetDemo} variant="secondary" loading={loading}>
           Reset Demo
         </Button> */}
-        <Button onClick={callTo} variant="primary" loading={loading}>
-          Call <CallIcon decorative={false} title="make call" />
-        </Button>
-        <Button onClick={hangupCall} variant="destructive" loading={loading}>
-          Hangup
-          <CallFailedIcon decorative={false} title="Disconnect" />
-        </Button>
-        <Button onClick={handleMute} variant="secondary" loading={loading}>
-          {isMuted ? "Muted" : "Mute"}
-          {isMuted ? (
-            <MicrophoneOffIcon decorative={false} title="Mute" />
-          ) : (
-            <MicrophoneOnIcon decorative={false} title="UnMute" />
-          )}
-        </Button>
-      </Stack>
-      <UseCaseModal
-        config={config}
-        template={template}
-        isOpen={isOpen}
-        handleOpen={handleOpen}
-        handleClose={handleClose}
-        handleConfigUpdate={handleConfigUpdate}
-      />
-
-      <VisualPickerRadioGroup
-        legend="Select Use Case"
-        name="visual-picker"
-        value={template}
-        onChange={(newTemplate) => {
-          setTemplate(newTemplate);
-        }}
-      >
-        {loading ? (
-          <SkeletonLoader height="150px" />
-        ) : (
-          config.map((item, index) => (
-            <VisualPickerRadio key={index} value={index.toString()}>
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <MediaObject verticalAlign="center">
-                  <MediaFigure spacing="space50"></MediaFigure>
-                  <MediaBody>
-                    <Text as="div" fontWeight="fontWeightSemibold">
-                      {item.title}
-                    </Text>
-                    <Text as="div" color="colorTextWeak">
-                      TTS Provider: {item.conversationRelayParams.ttsProvider}{" "}
-                      Voice: {item.conversationRelayParams.voice}
-                    </Text>
-                  </MediaBody>
-                </MediaObject>
-                <Box>
+            <Button onClick={callTo} variant="primary">
+              Call <CallIcon decorative={false} title="make call" />
+            </Button>
+            <Button onClick={hangupCall} variant="destructive">
+              Hangup
+              <CallFailedIcon decorative={false} title="Disconnect" />
+            </Button>
+            <Button onClick={handleMute} variant="secondary">
+              {isMuted ? "Muted" : "Mute"}
+              {isMuted ? (
+                <MicrophoneOffIcon decorative={false} title="Mute" />
+              ) : (
+                <MicrophoneOnIcon decorative={false} title="UnMute" />
+              )}
+            </Button>
+          </Stack>
+          <UseCaseModal
+            config={config}
+            template={template}
+            isOpen={isOpen}
+            handleOpen={handleOpen}
+            handleClose={handleClose}
+            handleConfigUpdate={handleConfigUpdate}
+          />
+          <VisualPickerRadioGroup
+            legend="Select Use Case"
+            name="visual-picker"
+            value={template}
+            onChange={(newTemplate) => {
+              setTemplate(newTemplate);
+            }}
+          >
+            {config.map((item, index) => (
+              <VisualPickerRadio key={index} value={index.toString()}>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
                   <MediaObject verticalAlign="center">
                     <MediaFigure spacing="space50"></MediaFigure>
                     <MediaBody>
                       <Text as="div" fontWeight="fontWeightSemibold">
-                        Welcome:
+                        {item.title}
                       </Text>
                       <Text as="div" color="colorTextWeak">
-                        {item.conversationRelayParams.welcomeGreeting}
+                        TTS Provider: {item.conversationRelayParams.ttsProvider}{" "}
+                        Voice: {item.conversationRelayParams.voice}
                       </Text>
                     </MediaBody>
                   </MediaObject>
+                  <Box>
+                    <MediaObject verticalAlign="center">
+                      <MediaFigure spacing="space50"></MediaFigure>
+                      <MediaBody>
+                        <Text as="div" fontWeight="fontWeightSemibold">
+                          Welcome:
+                        </Text>
+                        <Text as="div" color="colorTextWeak">
+                          {item.conversationRelayParams.welcomeGreeting}
+                        </Text>
+                      </MediaBody>
+                    </MediaObject>
+                  </Box>
+                  <Box display="flex" columnGap="space50">
+                    {template === index.toString() ? (
+                      <StatusBadge as="span" variant="ConnectivityAvailable">
+                        Enabled
+                      </StatusBadge>
+                    ) : (
+                      <StatusBadge as="span" variant="ConnectivityOffline">
+                        Disabled
+                      </StatusBadge>
+                    )}
+                    <Button onClick={handleConfigure} variant="secondary">
+                      Configure
+                    </Button>
+                  </Box>
                 </Box>
-                <Box display="flex" columnGap="space50">
-                  {template === index.toString() ? (
-                    <StatusBadge as="span" variant="ConnectivityAvailable">
-                      Enabled
-                    </StatusBadge>
-                  ) : (
-                    <StatusBadge as="span" variant="ConnectivityOffline">
-                      Disabled
-                    </StatusBadge>
-                  )}
-                  <Button onClick={handleConfigure} variant="secondary">
-                    Configure
-                  </Button>
-                </Box>
-              </Box>
-            </VisualPickerRadio>
-          ))
-        )}
-      </VisualPickerRadioGroup>
+              </VisualPickerRadio>
+            ))}
+          </VisualPickerRadioGroup>
+        </div>
+      )}
 
       <Visualizer
         updateWebsocketId={updateWebsocketId}

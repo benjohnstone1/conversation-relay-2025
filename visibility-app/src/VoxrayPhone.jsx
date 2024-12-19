@@ -171,19 +171,19 @@ export const VoxrayPhone = () => {
                   </Stack>
                 </div>
               ) : (
-                <div></div>
+                <Switch
+                  value={noiseCancellation}
+                  onClick={(e) => {
+                    noiseCancellation === false
+                      ? enableAudioProcessor()
+                      : disableAudioProcessor();
+                  }}
+                >
+                  Enable Noise Cancellation (Placeholder for Krisp - acts like
+                  mute for now)
+                </Switch>
               )}
-              <Switch
-                value={noiseCancellation}
-                onClick={(e) => {
-                  noiseCancellation === false
-                    ? enableAudioProcessor()
-                    : disableAudioProcessor();
-                }}
-              >
-                Enable Noise Cancellation (Placeholder for Krisp - acts like
-                mute for now)
-              </Switch>
+
               <UseCasePicker device={device} phone={phone} loading={loading} />
               <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
               <canvas id="audio-visualizer"></canvas>
