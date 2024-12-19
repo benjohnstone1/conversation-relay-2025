@@ -198,8 +198,10 @@ const updateUserProfile = async (id, traitName, traitValue) => {
   console.log(`update trait ${traitName} to ${traitValue} for profile ${id}`);
   //const userId = id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
   try {
-    analytics.identify(id, {
-      [traitName]: traitValue,
+    analytics.identify({
+      userId: id, traits: {
+        [traitName]: traitValue,
+      }
     });
     console.log("update trait done");
     return true;
@@ -217,8 +219,8 @@ module.exports = {
   updateUserProfile,
 };
 
-// updateUserProfile("client:+16477782422", "creditCardLastFour", "1111");
-
+ 
+//updateUserProfile("client:+16477782422", "creditCardLastFour", "2222");
 // addUser('8967', 'john black', '+491234567', 'Berlin Germany');
 // addEvent('8967', '2024-10-22', 'Medium eggplant pizza with sausages and AI sauce', 13, 'Delivery');
 // getEvents('8967');
