@@ -204,7 +204,7 @@ const updateUserProfile = async (id, traitName, traitValue) => {
     analytics.identify({
       userId: id,
       traits: {
-        traitName: traitValue,
+        [traitName]: traitValue,
       },
     });
   } catch (error) {
