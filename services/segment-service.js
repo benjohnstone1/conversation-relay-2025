@@ -164,11 +164,16 @@ const addInteraction = (id, eventName, data) => {
     console.error("Error adding addEvent:", error);
   }
 };
-
 const getUserProfile = async (id) => {
+  //client:+15123485523 -> client%3A%2B15123485523
+  const userId = id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
+  const baseUrl = `https://profiles.segment.com/v1/spaces/${spaceID}/collections/users/profiles/`;
+  const traitsUrl = `${baseUrl}user_id:${userId}/traits`;
+  console.log(traitsUrl);
+
+  // encode base64
   const username = profileToken;
   const password = "";
-  // encode base64
   const credentials = Buffer.from(`${username}:${password}`).toString("base64");
 
   // set headers
@@ -177,15 +182,12 @@ const getUserProfile = async (id) => {
       Authorization: `Basic ${credentials}`,
     },
   };
-
-  console.log("get_profile from segment for id: " + id);
-
   try {
     const response = await axios.get(
-      `https://profiles.segment.com/v1/spaces/${spaceID}/collections/users/profiles/user_id:${id}/traits`,
+      traitsUrl,
       config
     );
-
+    console.log("axios" + response);
     const traits = response.data.traits;
     console.log(traits);
     return traits;
@@ -193,12 +195,24 @@ const getUserProfile = async (id) => {
     console.log("get_profile error:", error);
     return "";
   }
+}
+
+const updateUserProfile = async (id, traitName, traitValue) => {
+  console.log(`update trait ${traitKey} to ${traitValue} for profile ${id}`);
+  //const userId = id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
+  try {
+    analytics.identify({
+      userId: id,
+      traits: {
+        traitName: traitValue,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating trait:", error);
+  }
+  console.log("update trait done");
 };
 
-//to do - GG
-const updateUserProfile = async (id) => {
-  //
-};
 
 module.exports = {
   addUser,

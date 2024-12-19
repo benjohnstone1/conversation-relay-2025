@@ -113,8 +113,8 @@ app.post("/incoming", async (req, res) => {
     let user = req.body.Caller; // e.g. "client:+1647XXXXXX"
     const phone = user.replace("client:", "");
     addUser(user, phone);
-    const userId = user.replace(/\+/g, "%2B").replace(/:/g, "%3A"); //need to reformat to pull from segment
-    const profile = await getUserProfile(userId);
+    // const userId = user.replace(/\+/g, "%2B").replace(/:/g, "%3A"); //need to reformat to pull from segment
+    const profile = await getUserProfile(user);
     console.log(`profile returned: ${JSON.stringify(profile)}`.yellow);
 
     // add virtual agent
