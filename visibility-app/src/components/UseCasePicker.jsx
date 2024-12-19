@@ -179,7 +179,7 @@ const UseCasePicker = (props) => {
         console.log("websocketId is: " + websocketId);
         // Place call
         var params = {
-          To: phone || "test:conversationRelay", // "e.g. client:+1647XXXXXXXX"
+          To: "test:conversationRelay",
           Title: config[template].title,
           uiwebsocketId: websocketId,
         };

@@ -188,6 +188,7 @@ const getUserProfile = async (id) => {
     );
 
     const traits = response.data.traits;
+    console.log(traits);
     return traits;
   } catch (e) {
     console.log("get_profile error:", error);

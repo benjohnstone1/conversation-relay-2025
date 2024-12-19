@@ -87,7 +87,9 @@ app.post("/update-use-cases", async (req, res) => {
 
 // Route to register voice client
 app.get("/register-voice-client", async (req, res) => {
-  token = await registerVoiceClient();
+  const phone = req.query.phone;
+  const identity = phone.replace(" ", "+"); //quirk passing in from UI
+  token = await registerVoiceClient(identity);
   console.log("Registered voice client");
   res.send(token.body);
 });
@@ -105,14 +107,14 @@ app.post("/incoming", async (req, res) => {
     logs.length = 0; // Clear logs
     addLog("info", "incoming call started");
     // Get Record from Airtable by Title
-    console.log("Title is ", req.body.Title);
     record = await getRecordByTitle({ title: req.body.Title });
 
     // Trigger Segment identity
     let user = req.body.Caller;
     // what should be the unique id?
     addUser(user, user.replace("client:", ""), user);
-    const profile = await getUserProfile(user);
+    const userId = user.replace(/\+/g, "%2B").replace(/:/g, "%3A"); //need to reformat to pull from segment
+    const profile = await getUserProfile(userId);
     console.log(`profile returned: ${JSON.stringify(profile)}`.yellow);
 
     // add virtual agent

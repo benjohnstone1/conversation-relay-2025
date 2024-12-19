@@ -20,6 +20,8 @@ import {
   Switch,
   Input,
   HelpText,
+  Button,
+  Stack,
 } from "@twilio-paste/core";
 
 import UseCasePicker from "./components/UseCasePicker";
@@ -58,7 +60,7 @@ export const VoxrayPhone = () => {
     });
 
     device.on("error", (dev) => {
-      console.log("Device encountered error\n");
+      console.log("Device encountered error\n", dev);
       setDevice(undefined);
     });
 
@@ -88,34 +90,60 @@ export const VoxrayPhone = () => {
     }
   };
 
-  useEffect(() => {
-    const registerVoiceClient = async () => {
-      if (!voiceToken.current) {
-        try {
-          const registerVoiceClientURL =
-            process.env.REACT_APP_REGISTER_VOICE_CLIENT_URL;
-          const res = await axios.get(registerVoiceClientURL);
-          voiceToken.current = res.data;
-          createVoiceDevice();
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    };
-
-    const createVoiceDevice = async () => {
-      const myDevice = await new Device(voiceToken.current, {
-        logLevel: 3,
-        codecPreferences: ["opus", "pcmu"],
-      });
-      setDevice(myDevice);
-      setLoading(false);
-      myDevice.register();
-      registerTwilioDeviceHandlers(myDevice);
-    };
-    registerVoiceClient();
+  const createVoiceDevice = async () => {
+    const myDevice = await new Device(voiceToken.current, {
+      logLevel: 3,
+      codecPreferences: ["opus", "pcmu"],
+    });
+    setDevice(myDevice);
+    setLoading(false);
+    myDevice.register();
+    registerTwilioDeviceHandlers(myDevice);
     audiovisualizer.setupAudioVisualizerCanvas();
-  }, []);
+  };
+
+  const registerVoiceClient = async (phone) => {
+    if (!voiceToken.current) {
+      try {
+        const registerVoiceClientURL =
+          process.env.REACT_APP_REGISTER_VOICE_CLIENT_URL;
+        const res = await axios.get(registerVoiceClientURL + "?phone=" + phone);
+        voiceToken.current = res.data;
+        createVoiceDevice();
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  // useEffect(() => {
+  //   const registerVoiceClient = async () => {
+  //     if (!voiceToken.current) {
+  //       try {
+  //         const registerVoiceClientURL =
+  //           process.env.REACT_APP_REGISTER_VOICE_CLIENT_URL;
+  //         const res = await axios.get(registerVoiceClientURL);
+  //         voiceToken.current = res.data;
+  //         createVoiceDevice();
+  //       } catch (e) {
+  //         console.log(e);
+  //       }
+  //     }
+  //   };
+
+  //   const createVoiceDevice = async () => {
+  //     const myDevice = await new Device(voiceToken.current, {
+  //       logLevel: 3,
+  //       codecPreferences: ["opus", "pcmu"],
+  //     });
+  //     setDevice(myDevice);
+  //     setLoading(false);
+  //     myDevice.register();
+  //     registerTwilioDeviceHandlers(myDevice);
+  //   };
+  //   registerVoiceClient();
+  //   audiovisualizer.setupAudioVisualizerCanvas();
+  // }, []);
 
   return (
     <Theme.Provider theme="Twilio">
@@ -128,6 +156,23 @@ export const VoxrayPhone = () => {
                 {/* <AudioDevices /> */}
               </Heading>
               {/* <DBProfile /> */}
+              {loading ? (
+                <div>
+                  <Label required>Enter Phone Number</Label>
+                  <Stack orientation="horizontal" spacing="space40">
+                    <PhoneInput
+                      defaultCountry="us"
+                      value={phone}
+                      onChange={(phone) => setPhone(phone)}
+                    />
+                    <Button onClick={() => registerVoiceClient(phone)}>
+                      Register
+                    </Button>
+                  </Stack>
+                </div>
+              ) : (
+                <div></div>
+              )}
               <Switch
                 value={noiseCancellation}
                 onClick={(e) => {
@@ -139,12 +184,6 @@ export const VoxrayPhone = () => {
                 Enable Noise Cancellation (Placeholder for Krisp - acts like
                 mute for now)
               </Switch>
-              <Label required>Enter Phone Number</Label>
-              <PhoneInput
-                defaultCountry="us"
-                value={phone}
-                onChange={(phone) => setPhone(phone)}
-              />
               <UseCasePicker device={device} phone={phone} loading={loading} />
               <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
               <canvas id="audio-visualizer"></canvas>

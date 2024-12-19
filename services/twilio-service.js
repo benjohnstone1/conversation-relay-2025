@@ -22,13 +22,13 @@ const startRecording = async (textService, callSid) => {
   }
 };
 
-const registerVoiceClient = async () => {
+const registerVoiceClient = async (identity) => {
   try {
     const accessToken = new AccessToken(
       process.env.TWILIO_ACCOUNT_SID,
       process.env.TWILIO_API_KEY,
       process.env.TWILIO_API_SECRET,
-      { identity: "test:conversationRelay" }
+      { identity: identity || "test:conversationRelay" }
     );
 
     const grant = new VoiceGrant({
