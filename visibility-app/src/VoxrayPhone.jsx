@@ -92,7 +92,7 @@ export const VoxrayPhone = () => {
 
   const createVoiceDevice = async () => {
     const myDevice = await new Device(voiceToken.current, {
-      logLevel: 3,
+      logLevel: 5,
       codecPreferences: ["opus", "pcmu"],
     });
     setDevice(myDevice);

@@ -116,13 +116,12 @@ function readData(jsonData) {
 */
 
 //add a user
-const addUser = async (id, name, phone) => {
+const addUser = async (id, phone) => {
   console.log("add user start");
   try {
     analytics.identify({
       userId: id,
       traits: {
-        name: name,
         phone: phone,
       },
     });

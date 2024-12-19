@@ -110,9 +110,9 @@ app.post("/incoming", async (req, res) => {
     record = await getRecordByTitle({ title: req.body.Title });
 
     // Trigger Segment identity
-    let user = req.body.Caller;
-    // what should be the unique id?
-    addUser(user, user.replace("client:", ""), user);
+    let user = req.body.Caller; // e.g. "client:+1647XXXXXX"
+    const phone = user.replace("client:", "");
+    addUser(user, phone);
     const userId = user.replace(/\+/g, "%2B").replace(/:/g, "%3A"); //need to reformat to pull from segment
     const profile = await getUserProfile(userId);
     console.log(`profile returned: ${JSON.stringify(profile)}`.yellow);
