@@ -198,7 +198,7 @@ const getUserProfile = async (id) => {
 }
 
 const updateUserProfile = async (id, traitName, traitValue) => {
-  console.log(`update trait ${traitKey} to ${traitValue} for profile ${id}`);
+  console.log(`update trait ${traitName} to ${traitValue} for profile ${id}`);
   //const userId = id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
   try {
     analytics.identify(
