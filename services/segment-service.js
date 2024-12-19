@@ -197,10 +197,22 @@ const getUserProfile = async (id) => {
   }
 }
 
-//to do - GG
-const updateUserProfile = async (id) => {
-  //
+const updateUserProfile = async (id, traitName, traitValue) => {
+  console.log(`update trait ${traitKey} to ${traitValue} for profile ${id}`);
+  //const userId = id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
+  try {
+    analytics.identify({
+      userId: id,
+      traits: {
+        traitName: traitValue,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating trait:", error);
+  }
+  console.log("update trait done");
 };
+
 
 module.exports = {
   addUser,
