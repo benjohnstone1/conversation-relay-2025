@@ -107,10 +107,12 @@ app.post("/incoming", async (req, res) => {
     logs.length = 0; // Clear logs
     addLog("info", "incoming call started");
     // Get Record from Airtable by Title
-    record = await getRecordByTitle({ title: req.body.Title });
+    record = await getRecordByTitle({
+      title: req.body.Title || "Owl Shoes ISV Summit SF",
+    });
 
     // Trigger Segment identity
-    let user = req.body.Caller; // e.g. "client:+1647XXXXXX"
+    let user = req.body.From; // e.g. "client:+1647XXXXXX"
     const phone = user.replace("client:", "");
     addUser(user, phone);
     // const userId = user.replace(/\+/g, "%2B").replace(/:/g, "%3A"); //need to reformat to pull from segment
@@ -149,7 +151,7 @@ app.post("/incoming", async (req, res) => {
 
     const response = `<Response>
       <Connect>
-        <ConversationRelay url="wss://${process.env.SERVER}/sockets" dtmfDetection="${record.conversationRelayParams.dtmfDetection}" interruptible="${record.conversationRelayParams.interruptible}" voice="${record.conversationRelayParams.voice}" language="${record.conversationRelayParams.language}" profanityFilter="${record.conversationRelayParams.profanityFilter}" speechModel="${record.conversationRelayParams.speechModel}" transcriptionProvider="${record.conversationRelayParams.transcriptionProvider}" ttsProvider="${record.conversationRelayParams.ttsProvider}" welcomeGreeting="${record.conversationRelayParams.welcomeGreeting}">
+        <ConversationRelay url="wss://${process.env.SERVER}/sockets" debug="true" dtmfDetection="${record.conversationRelayParams.dtmfDetection}" interruptible="${record.conversationRelayParams.interruptible}" voice="${record.conversationRelayParams.voice}" language="${record.conversationRelayParams.language}" profanityFilter="${record.conversationRelayParams.profanityFilter}" speechModel="${record.conversationRelayParams.speechModel}" transcriptionProvider="${record.conversationRelayParams.transcriptionProvider}" ttsProvider="${record.conversationRelayParams.ttsProvider}" welcomeGreeting="${record.conversationRelayParams.welcomeGreeting}">
         </ConversationRelay>
       </Connect>
     </Response>`;
@@ -162,7 +164,9 @@ app.post("/incoming", async (req, res) => {
 
 function sendEventToClient(ws, msg) {
   console.log(msg);
-  ws.send(JSON.stringify(msg));
+  if (ws) {
+    ws.send(JSON.stringify(msg));
+  }
 }
 
 let wsClient;

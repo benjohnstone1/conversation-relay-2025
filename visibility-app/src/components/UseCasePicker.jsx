@@ -133,6 +133,7 @@ const UseCasePicker = (props) => {
     call.on("disconnect", function (conn) {
       console.log("Call disconnected\n");
       getRecordingURL(conn.parameters.CallSid);
+      setMuted(false);
       setCall(null);
     });
 
