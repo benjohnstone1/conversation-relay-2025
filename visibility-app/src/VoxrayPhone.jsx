@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { Device } from "@twilio/voice-sdk";
 import "./styles/VoxrayPhone.css";
@@ -13,16 +13,7 @@ import "react-international-phone/style.css";
 
 // Twilio Paste
 import { Theme } from "@twilio-paste/core/dist/theme";
-import {
-  Box,
-  Heading,
-  Label,
-  Switch,
-  Input,
-  HelpText,
-  Button,
-  Stack,
-} from "@twilio-paste/core";
+import { Box, Heading, Label, Switch, Button, Stack } from "@twilio-paste/core";
 
 import UseCasePicker from "./components/UseCasePicker";
 
@@ -184,7 +175,7 @@ export const VoxrayPhone = () => {
                 </Switch>
               )}
 
-              <UseCasePicker device={device} phone={phone} loading={loading} />
+              <UseCasePicker device={device} loading={loading} />
               <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
               <canvas id="audio-visualizer"></canvas>
               {/* <ReactAudioVisualizer /> */}

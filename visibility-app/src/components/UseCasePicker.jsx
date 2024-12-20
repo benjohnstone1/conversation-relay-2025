@@ -45,7 +45,6 @@ const UseCasePicker = (props) => {
   let websocketId;
 
   const device = props.device;
-  const phone = props.phone;
   const loading = props.loading;
 
   const toaster = useToaster();
