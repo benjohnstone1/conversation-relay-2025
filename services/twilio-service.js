@@ -71,4 +71,9 @@ const getRecording = async (callSid) => {
   }
 };
 
-module.exports = { registerVoiceClient, getRecording, startRecording };
+const voiceIntelligenceHandler = async (event) => {
+  console.log("voiceIntelligenceHandler " + event);
+  return { result: "success" };
+};
+
+module.exports = { registerVoiceClient, getRecording, startRecording,voiceIntelligenceHandler };

@@ -19,6 +19,7 @@ const {
   registerVoiceClient,
   getRecording,
   startRecording,
+  voiceIntelligenceHandler
 } = require("./services/twilio-service");
 // const { prompt, userProfile, orderHistory } = require("./services/prompt");
 const {
@@ -46,6 +47,7 @@ app.use(express.urlencoded({ extended: false }));
 let gptService;
 let textService;
 let records;
+let viResult;
 // Add this code after creating the Express app
 
 // Handled by our React App
@@ -92,6 +94,30 @@ app.get("/register-voice-client", async (req, res) => {
   token = await registerVoiceClient(identity);
   console.log("Registered voice client");
   res.send(token.body);
+});
+
+app.post("/voice-intelligence-handler", async (req, res) => {
+  try {
+    console.log("voice-intelligence-handler start" + req);
+    viResult = await voiceIntelligenceHandler("test");
+    console.log("voice-intelligence-handler complete result: " + viResult);
+    let call = {
+      type: "Voice Intelligence Results",
+      callSid: "1234",
+      callerProfileId: "5678",
+      agentId: "007",
+      viOperators: { 'sentimentAnalysis': 'good', 'csat': '5', 'contained': 'yes' , 'conversion' : 'yes'},
+      transcript: "hello how are you?"
+    };
+
+    addInteraction(call.callerProfileId, `${call.type}: ${call.callSid}`, call);
+    //@TODO ask andy how we add the same event to caller and agent
+    //addInteraction(call.agentId, `${call.type}: ${call.callSid}`, call);
+    res.send("success");
+  } catch (err) {
+    console.log("error sending call to segment " + err);
+    res.send("error");
+  }
 });
 
 // Get Recording
