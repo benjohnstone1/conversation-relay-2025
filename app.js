@@ -98,19 +98,13 @@ app.get("/register-voice-client", async (req, res) => {
 
 app.post("/voice-intelligence-handler", async (req, res) => {
   try {
-    console.log("voice-intelligence-handler start" + req);
-    viResult = await voiceIntelligenceHandler("test");
+    const params = req.body;
+    console.log("voice-intelligence-handler start" );
+    console.log(params);
+    const transcriptSid = params.transcript_sid;   
+    viResult = await voiceIntelligenceHandler(transcriptSid);
     console.log("voice-intelligence-handler complete result: " + viResult);
-    let call = {
-      type: "Voice Intelligence Results",
-      callSid: "1234",
-      callerProfileId: "5678",
-      agentId: "007",
-      viOperators: { 'sentimentAnalysis': 'good', 'csat': '5', 'contained': 'yes' , 'conversion' : 'yes'},
-      transcript: "hello how are you?"
-    };
-
-    addInteraction(call.callerProfileId, `${call.type}: ${call.callSid}`, call);
+    addInteraction(viResult.callerProfileId, `${viResult.type}: ${viResult.callSid}`, viResult);
     //@TODO ask andy how we add the same event to caller and agent
     //addInteraction(call.agentId, `${call.type}: ${call.callSid}`, call);
     res.send("success");
