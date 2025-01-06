@@ -117,6 +117,9 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
     const sentimentAnalysisOR = operatorResultsResponse.find(or => or.name === "Sentiment Analysis");
     const sentimentAnalysisVal = sentimentAnalysisOR.predictedLabel;
 
+    const competitorReferenceOR = operatorResultsResponse.find(or => or.name === "Competitor References");
+    const competitorReferenceVal = competitorReferenceOR.predictedLabel;
+
     console.log("Sentiment analysis " + sentimentAnalysisVal);
 
     let call = {
@@ -126,7 +129,7 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
       callerProfileId: customerUniqueId,
       agentId: agentUniqueId,
       //viOperators: operatorResultsResponse,
-      viOperators: { 'Sentiment Analysis': `'${sentimentAnalysisVal}'`, 'csat': '5', 'contained': 'yes', 'conversion': 'yes' },
+      viOperators: { 'Sentiment Analysis': `'${sentimentAnalysisVal}'`, 'Competitor References': `'${competitorReferenceVal}'` },
       transcript: transcriptText
     };
     return call;
