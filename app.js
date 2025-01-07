@@ -260,7 +260,11 @@ app.ws("/sockets", (ws) => {
       // Send conversation relay message to client websocket
       sendEventToClient(wsClient, msg);
       if (caller) {
-        addInteraction(caller, `Message: ${msg.type}`, msg);
+        console.log(`${caller}`.green);
+        if (msg.type === "setup") {
+          console.log(`cRelay Message: ${msg.type}`.green);
+          addInteraction(caller, `cRelay Message: ${msg.type}`, msg);
+        }
       }
 
       // Handle conversation relay message types
@@ -268,6 +272,8 @@ app.ws("/sockets", (ws) => {
         addLog("convrelay", `convrelay socket setup ${msg.callSid}`);
         callSid = msg.callSid;
         caller = msg.from;
+        addInteraction(caller, `cRelay Message: ${msg.type}`, msg);
+
         // to do - confirm if number is needed as calling from client
         gptService.setCallInfo("user phone number", msg.from);
 
@@ -306,8 +312,7 @@ app.ws("/sockets", (ws) => {
 
       if (msg.type === "error") {
         addLog("convrelay", "convrelay error: " + msg.description);
-
-        console.log("Todo: add error handling");
+        addInteraction(caller, `cRelay Message: ${msg.type}`, msg);
       }
 
       if (msg.type === "dtmf") {
@@ -327,7 +332,7 @@ app.ws("/sockets", (ws) => {
       };
 
       sendEventToClient(wsClient, msg);
-      addInteraction(caller, `Message: ${msg.type}`, msg);
+      // addInteraction(caller, `Message: ${msg.type}`, msg);
       textService.sendText(gptReply, final);
     });
 
