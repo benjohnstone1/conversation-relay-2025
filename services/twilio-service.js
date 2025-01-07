@@ -14,8 +14,8 @@ const startRecording = async (textService, callSid) => {
     // textService.sendText({partialResponseIndex: null, partialResponse: 'This call will be recorded.'}, 0);
     const recording = await client.calls(callSid).recordings.create({
       recordingChannels: "dual",
-      recordingStatusCallback: `https://${process.env.SERVER}/recording-complete`, // post status callback in app
-      recordingStatusCallbackEvent: ["completed"], //when completed
+      recordingStatusCallback: `https://${process.env.SERVER}/recording-complete`,
+      recordingStatusCallbackEvent: ["completed"],
     });
 
     console.log(`Recording Created: ${recording.sid}`.red);
@@ -30,7 +30,7 @@ const registerVoiceClient = async (identity) => {
       process.env.TWILIO_ACCOUNT_SID,
       process.env.TWILIO_API_KEY,
       process.env.TWILIO_API_SECRET,
-      { identity: identity || "test:conversationRelay" }
+      { identity: identity }
     );
 
     const grant = new VoiceGrant({
@@ -154,9 +154,7 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
 };
 
 const fetchCall = async (callSid) => {
-  const call = await client.calls(callSid).fetch();
-  console.log(call);
-  return call;
+  return (call = await client.calls(callSid).fetch());
 };
 
 const createTranscript = async (recordingSid, callSid) => {
@@ -193,17 +191,6 @@ const createTranscript = async (recordingSid, callSid) => {
     console.log(e);
   }
 };
-
-// createTranscript("REd38b7cb07c921d5a0bcbe0dd0816e5b0");
-
-// async function deleteTranscript(transcriptSid) {
-//   try {
-//     await client.intelligence.v2.transcripts(transcriptSid).remove();
-//   } catch (e) {
-//     console.log(e);
-//   }
-// }
-// deleteTranscript("GTcb4950bb42230a4a3813d44673859f76");
 
 module.exports = {
   registerVoiceClient,
