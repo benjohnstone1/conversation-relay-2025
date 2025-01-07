@@ -19,6 +19,8 @@ const {
   registerVoiceClient,
   getRecording,
   startRecording,
+  createTranscript,
+  voiceIntelligenceHandler,
 } = require("./services/twilio-service");
 // const { prompt, userProfile, orderHistory } = require("./services/prompt");
 const {
@@ -94,6 +96,42 @@ app.get("/register-voice-client", async (req, res) => {
   res.send(token.body);
 });
 
+// Voice Intelligence Handler
+app.post("/voice-intelligence-handler", async (req, res) => {
+  try {
+    const params = req.body;
+    console.log("voice-intelligence-handler start");
+    console.log(params);
+    const transcriptSid = params.transcript_sid;
+    viResult = await voiceIntelligenceHandler(transcriptSid);
+    console.log("voice-intelligence-handler complete result: " + viResult);
+    // we also need to update the transcript particpants
+
+    // add to segment
+    addInteraction(
+      viResult.callerProfileId,
+      `${viResult.type}: ${viResult.callSid}`,
+      viResult
+    );
+    //@TODO ask andy how we add the same event to caller and agent
+    //addInteraction(call.agentId, `${call.type}: ${call.callSid}`, call);
+    res.send("success");
+  } catch (err) {
+    console.log("error sending call to segment " + err);
+    res.send("error");
+  }
+});
+
+// Post Recording Handler
+app.post("/recording-complete", async (req, res) => {
+  console.log("recording completed - creating transcript");
+  const transcript = await createTranscript(
+    req.body.RecordingSid,
+    req.body.CallSid
+  );
+  console.log("transcript created", transcript);
+});
+
 // Get Recording
 app.get("/get-recording", async (req, res) => {
   const callSid = req.query.callSid;
@@ -151,10 +189,12 @@ app.post("/incoming", async (req, res) => {
 
     const response = `<Response>
       <Connect>
-        <ConversationRelay url="wss://${process.env.SERVER}/sockets" debug="true" dtmfDetection="${record.conversationRelayParams.dtmfDetection}" interruptible="${record.conversationRelayParams.interruptible}" voice="${record.conversationRelayParams.voice}" language="${record.conversationRelayParams.language}" profanityFilter="${record.conversationRelayParams.profanityFilter}" speechModel="${record.conversationRelayParams.speechModel}" transcriptionProvider="${record.conversationRelayParams.transcriptionProvider}" ttsProvider="${record.conversationRelayParams.ttsProvider}" welcomeGreeting="${record.conversationRelayParams.welcomeGreeting}">
+        <ConversationRelay url="wss://${process.env.SERVER}/sockets" dtmfDetection="${record.conversationRelayParams.dtmfDetection}" interruptible="${record.conversationRelayParams.interruptible}" voice="${record.conversationRelayParams.voice}" language="${record.conversationRelayParams.language}" profanityFilter="${record.conversationRelayParams.profanityFilter}" speechModel="${record.conversationRelayParams.speechModel}" transcriptionProvider="${record.conversationRelayParams.transcriptionProvider}" ttsProvider="${record.conversationRelayParams.ttsProvider}" welcomeGreeting="${record.conversationRelayParams.welcomeGreeting}">
+        <Parameter name="foo" value="bar"/>
         </ConversationRelay>
       </Connect>
     </Response>`;
+
     res.type("text/xml");
     res.end(response.toString());
   } catch (err) {
