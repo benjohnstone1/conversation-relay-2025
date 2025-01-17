@@ -104,16 +104,14 @@ app.post("/voice-intelligence-handler", async (req, res) => {
     console.log(params);
     const transcriptSid = params.transcript_sid;
     viResult = await voiceIntelligenceHandler(transcriptSid);
-    console.log("voice-intelligence-handler complete result: " + viResult);
+    console.log(
+      "voice-intelligence-handler complete result: " + JSON.stringify(viResult)
+    );
     // we also need to update the transcript particpants
 
     // add to segment
-    addInteraction(
-      viResult.callerProfileId,
-      viResult.type,
-      viResult
-    );
-    
+    addInteraction(viResult.callerProfileId, viResult.type, viResult);
+
     //@TODO ask andy how we add the same event to caller and agent
     //addInteraction(call.agentId, `${call.type}: ${call.callSid}`, call);
     res.send("success");
@@ -191,7 +189,6 @@ app.post("/incoming", async (req, res) => {
     const response = `<Response>
       <Connect>
         <ConversationRelay url="wss://${process.env.SERVER}/sockets" dtmfDetection="${record.conversationRelayParams.dtmfDetection}" interruptible="${record.conversationRelayParams.interruptible}" voice="${record.conversationRelayParams.voice}" language="${record.conversationRelayParams.language}" profanityFilter="${record.conversationRelayParams.profanityFilter}" speechModel="${record.conversationRelayParams.speechModel}" transcriptionProvider="${record.conversationRelayParams.transcriptionProvider}" ttsProvider="${record.conversationRelayParams.ttsProvider}" welcomeGreeting="${record.conversationRelayParams.welcomeGreeting}">
-        <Parameter name="foo" value="bar"/>
         </ConversationRelay>
       </Connect>
     </Response>`;

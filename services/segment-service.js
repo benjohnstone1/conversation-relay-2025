@@ -156,7 +156,9 @@ const addInteraction = (id, eventName, data) => {
       userId: id,
       event: eventName,
       timestamp: Date.now(), // Add timestamp at the root level
-      ...data, // Spread all key-value pairs from data at the root level
+      properties: {
+        ...data, // Spread all key-value pairs from data at the root level
+      },
     });
   } catch (error) {
     console.error("Error adding addEvent:", error);
@@ -198,9 +200,10 @@ const updateUserProfile = async (id, traitName, traitValue) => {
   //const userId = id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
   try {
     analytics.identify({
-      userId: id, traits: {
+      userId: id,
+      traits: {
         [traitName]: traitValue,
-      }
+      },
     });
     console.log("update trait done");
     return true;
@@ -218,7 +221,6 @@ module.exports = {
   updateUserProfile,
 };
 
- 
 //updateUserProfile("client:+16477782422", "creditCardLastFour", "2222");
 // addUser('8967', 'john black', '+491234567', 'Berlin Germany');
 // addEvent('8967', '2024-10-22', 'Medium eggplant pizza with sausages and AI sauce', 13, 'Delivery');
