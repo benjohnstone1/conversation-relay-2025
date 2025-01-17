@@ -261,7 +261,7 @@ app.ws("/sockets", (ws) => {
         console.log(`${caller}`.green);
         if (msg.type === "setup") {
           console.log(`cRelay Message: ${msg.type}`.green);
-          addInteraction(caller, `cRelay Message: ${msg.type}`, msg);
+          addInteraction(caller, `Call Started`, msg);
         }
       }
 
@@ -270,7 +270,7 @@ app.ws("/sockets", (ws) => {
         addLog("convrelay", `convrelay socket setup ${msg.callSid}`);
         callSid = msg.callSid;
         caller = msg.from;
-        addInteraction(caller, `cRelay Message: ${msg.type}`, msg);
+        addInteraction(caller, `Call Started`, msg);
 
         // to do - confirm if number is needed as calling from client
         gptService.setCallInfo("user phone number", msg.from);
@@ -310,7 +310,7 @@ app.ws("/sockets", (ws) => {
 
       if (msg.type === "error") {
         addLog("convrelay", "convrelay error: " + msg.description);
-        addInteraction(caller, `cRelay Message: ${msg.type}`, msg);
+        addInteraction(caller, `Call Error`, msg);
       }
 
       if (msg.type === "dtmf") {
@@ -343,11 +343,18 @@ app.ws("/sockets", (ws) => {
         let msg = {
           type: "functionCall",
           token: `Called function ${functionName} with args ${functionArgs}`,
+          // update this message
         };
         sendEventToClient(wsClient, msg);
 
         // Add function call to Segment
-        addInteraction(caller, `${msg.type}: ${functionName}`, msg);
+        let trackEvent = {
+          name: functionName,
+          ...msg,
+          function_arguments: JSON.parse(functionArgs),
+          function_response: JSON.parse(functionResponse),
+        };
+        addInteraction(caller, `Function Called`, trackEvent);
 
         if (functionName == "changeLanguage" && record.changeSTT) {
           addLog("convrelay", `convrelay ChangeLanguage to: ${functionArgs}`);
