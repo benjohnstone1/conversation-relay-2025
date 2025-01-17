@@ -59,7 +59,7 @@ async function getLatestRecords() {
     let records = await base("builder")
       .select({
         // maxRecords: 1,
-        sort: [{ field: "Updated", direction: "desc" }],
+        sort: [{ field: "Title", direction: "asc" }],
       })
       .firstPage();
 

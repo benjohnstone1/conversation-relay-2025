@@ -143,7 +143,7 @@ export const VoxrayPhone = () => {
           <Box display="flex" flexDirection="column">
             <Box padding="space50">
               <Heading as="h2" variant="heading20">
-                ConversationRelay Hackathon 2025
+                SinCity SizzleRelay AI Tuner
                 {/* <AudioDevices /> */}
               </Heading>
               {/* <DBProfile /> */}
