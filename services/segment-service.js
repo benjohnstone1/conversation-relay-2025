@@ -155,15 +155,14 @@ const addInteraction = (id, eventName, data) => {
     analytics.track({
       userId: id,
       event: eventName,
-      properties: {
-        timestamp: Date.now(),
-        data,
-      },
+      timestamp: Date.now(), // Add timestamp at the root level
+      ...data, // Spread all key-value pairs from data at the root level
     });
   } catch (error) {
     console.error("Error adding addEvent:", error);
   }
 };
+
 const getUserProfile = async (id) => {
   //client:+15123485523 -> client%3A%2B15123485523
   const userId = id.replace(/\+/g, "%2B").replace(/:/g, "%3A");

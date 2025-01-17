@@ -110,9 +110,10 @@ app.post("/voice-intelligence-handler", async (req, res) => {
     // add to segment
     addInteraction(
       viResult.callerProfileId,
-      `${viResult.type}: ${viResult.callSid}`,
+      viResult.type,
       viResult
     );
+    
     //@TODO ask andy how we add the same event to caller and agent
     //addInteraction(call.agentId, `${call.type}: ${call.callSid}`, call);
     res.send("success");
