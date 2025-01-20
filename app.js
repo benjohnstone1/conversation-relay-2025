@@ -180,13 +180,13 @@ app.post('/incoming', async (req, res) => {
     console.log(`agent profile returned: ${JSON.stringify(agentProfile)}`.yellow);
     
     // defer to Segment agent profile if this info has already been saved
-    const prompt = agentProfile.prompt || record.prompt; // adjust to incorporate agent traits
-    const cRelayParams = agentProfile.conversationRelayParams || record.conversationRelayParams; // adjust to incorporate agent traits
+    const prompt = record.prompt; // adjust to incorporate agent traits
+    const cRelayParams = record.conversationRelayParams; // adjust to incorporate agent traits
 
     // add virtual agent
     if (!agentProfile) {
       addVirtualAgent(
-        agent, //id
+        user, //id is transformed in destination function
         profile.name ? profile.name + '\'s Agent' : phone + '\'s Agent', //name
         prompt,
         cRelayParams
