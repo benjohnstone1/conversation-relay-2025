@@ -1,33 +1,33 @@
-require("dotenv").config();
-require("colors");
-require("log-timestamp");
+require('dotenv').config();
+require('colors');
+require('log-timestamp');
 
-const express = require("express");
-const ExpressWs = require("express-ws");
-const cors = require("cors");
-const path = require("path");
+const express = require('express');
+const ExpressWs = require('express-ws');
+const cors = require('cors');
+const path = require('path');
 
-const { GptService } = require("./services/gpt-service");
-const { TextService } = require("./services/text-service");
+const { GptService } = require('./services/gpt-service');
+const { TextService } = require('./services/text-service');
 const {
   addUser,
   addVirtualAgent,
   addInteraction,
   getUserProfile,
-} = require("./services/segment-service");
+} = require('./services/segment-service');
 const {
   registerVoiceClient,
   getRecording,
   startRecording,
   createTranscript,
   voiceIntelligenceHandler,
-} = require("./services/twilio-service");
+} = require('./services/twilio-service');
 // const { prompt, userProfile, orderHistory } = require("./services/prompt");
 const {
   getLatestRecords,
   updateLatestRecord,
   getRecordByTitle,
-} = require("./services/airtable-service");
+} = require('./services/airtable-service');
 
 const app = express();
 ExpressWs(app);
@@ -35,12 +35,12 @@ ExpressWs(app);
 const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
-  origin: "*",
+  origin: '*',
   credentials: true,
   optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
-app.use(express.static(path.join(__dirname, "./visibility-app/build")));
+app.use(express.static(path.join(__dirname, './visibility-app/build')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -51,12 +51,12 @@ let records;
 // Add this code after creating the Express app
 
 // Handled by our React App
-app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./visibility-app/build", "index.html"));
+app.get('/', (req, res) => {
+  res.sendFile(path.resolve(__dirname, './visibility-app/build', 'index.html'));
 });
 
-app.get("/monitor", (req, res) => {
-  res.sendFile(__dirname + "/monitor.html");
+app.get('/monitor', (req, res) => {
+  res.sendFile(__dirname + '/monitor.html');
 });
 
 // Initialize an array to store logs
@@ -70,130 +70,159 @@ function addLog(level, message) {
 }
 
 // Route to retrieve logs
-app.get("/logs", (req, res) => {
+app.get('/logs', (req, res) => {
   res.json(logs);
 });
 
 // Route to retrieve Airtable records
-app.get("/get-use-cases", async (req, res) => {
+app.get('/get-use-cases', async (req, res) => {
   records = await getLatestRecords();
+  const recordFromProfile = {
+    conversationRelayParams: {},
+    prompt: '',
+    profile: '{}',
+    orders: '{}',
+    inventory: '{}',
+    example: '',
+    model: 'gpt-4o-2024-08-06',
+    changeSTT: false,
+    recording: true,
+    tools: '',
+    title: 'Personalized Agent'
+  };
+  records.push(recordFromProfile);
+  // console.log('records fetched',records);
+  
   res.json(records);
 });
 
 // Route to update Airtable record
-app.post("/update-use-cases", async (req, res) => {
-  console.log("Updating record: ", req.body.title);
+app.post('/update-use-cases', async (req, res) => {
+  console.log('Updating record: ', req.body.title);
   updatedRecord = await updateLatestRecord(req.body);
   res.send(updatedRecord);
 });
 
 // Route to register voice client
-app.get("/register-voice-client", async (req, res) => {
+app.get('/register-voice-client', async (req, res) => {
   const phone = req.query.phone;
-  const identity = phone.replace(" ", "+"); //quirk passing in from UI
+  const identity = phone.replace(' ', '+'); //quirk passing in from UI
   token = await registerVoiceClient(identity);
-  console.log("Registered voice client");
+  console.log('Registered voice client');
   res.send(token.body);
 });
 
 // Voice Intelligence Handler
-app.post("/voice-intelligence-handler", async (req, res) => {
+app.post('/voice-intelligence-handler', async (req, res) => {
   try {
     const params = req.body;
-    console.log("voice-intelligence-handler start");
+    console.log('voice-intelligence-handler start');
     console.log(params);
     const transcriptSid = params.transcript_sid;
     viResult = await voiceIntelligenceHandler(transcriptSid);
     console.log(
-      "voice-intelligence-handler complete result: " + JSON.stringify(viResult)
+      'voice-intelligence-handler complete result: ' + JSON.stringify(viResult)
     );
     // we also need to update the transcript particpants
 
     // add to segment
-    addInteraction(viResult.callerProfileId, viResult.type, viResult);
+    addInteraction(viResult.callerProfileId, viResult.type, viResult, false);
+    const agentId = viResult.callerProfileId.replace('client','agent');
+    addInteraction(viResult.callerProfileId, viResult.type, viResult, true);
 
-    //@TODO ask andy how we add the same event to caller and agent
     //addInteraction(call.agentId, `${call.type}: ${call.callSid}`, call);
-    res.send("success");
+    res.send('success');
   } catch (err) {
-    console.log("error sending call to segment " + err);
-    res.send("error");
+    console.log('error sending call to segment ' + err);
+    res.send('error');
   }
 });
 
 // Post Recording Handler
-app.post("/recording-complete", async (req, res) => {
-  console.log("recording completed - creating transcript");
+app.post('/recording-complete', async (req, res) => {
+  console.log('recording completed - creating transcript');
   const transcript = await createTranscript(
     req.body.RecordingSid,
     req.body.CallSid
   );
-  console.log("transcript created", transcript);
+  console.log('transcript created', transcript);
 });
 
 // Get Recording
-app.get("/get-recording", async (req, res) => {
+app.get('/get-recording', async (req, res) => {
   const callSid = req.query.callSid;
   recording = await getRecording(callSid);
   console.log(recording);
   res.send(recording);
 });
 
-app.post("/incoming", async (req, res) => {
+app.post('/incoming', async (req, res) => {
   try {
     logs.length = 0; // Clear logs
-    addLog("info", "incoming call started");
+    addLog('info', 'incoming call started');
     // Get Record from Airtable by Title
     record = await getRecordByTitle({
-      title: req.body.Title || "Owl Shoes ISV Summit SF",
+      title: req.body.Title || 'Owl Shoes ISV Summit SF',
     });
 
     // Trigger Segment identity
     let user = req.body.From; // e.g. "client:+1647XXXXXX"
-    const phone = user.replace("client:", "");
-    addUser(user, phone);
+    const phone = user.replace('client:', '');
+    
     // const userId = user.replace(/\+/g, "%2B").replace(/:/g, "%3A"); //need to reformat to pull from segment
-    const profile = await getUserProfile(user);
-    console.log(`profile returned: ${JSON.stringify(profile)}`.yellow);
+    const profile = await getUserProfile(user, false);
+
+    if (!profile) addUser(user, phone);
+    
+    // console.log(`profile returned: ${JSON.stringify(profile)}`.yellow);
+
+    const agentProfile = await getUserProfile(user, true);
+    console.log(`agent profile returned: ${JSON.stringify(agentProfile)}`.yellow);
+    
+    // defer to Segment agent profile if this info has already been saved
+    const prompt = agentProfile.prompt || record.prompt; // adjust to incorporate agent traits
+    const cRelayParams = agentProfile.conversationRelayParams || record.conversationRelayParams; // adjust to incorporate agent traits
 
     // add virtual agent
-    addVirtualAgent(
-      record.title, //id
-      record.title, //name
-      record.prompt,
-      record.conversationRelayParams
-    );
+    if (!agentProfile) {
+      addVirtualAgent(
+        agent, //id
+        profile.name ? profile.name + '\'s Agent' : phone + '\'s Agent', //name
+        prompt,
+        cRelayParams
+      );
+    }
 
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
     // Replace Airtable records with data from Segment
-    gptService.userContext.push({ role: "system", content: record.prompt });
+    gptService.userContext.push({ role: 'system', content: prompt });
     // gptService.userContext.push({ role: "system", content: record.profile }); //Airtable
     gptService.userContext.push({
-      role: "system",
+      role: 'system',
       content: JSON.stringify(profile),
     });
-    gptService.userContext.push({ role: "system", content: record.orders }); //replace with Segment order history
-    gptService.userContext.push({ role: "system", content: record.inventory });
+    gptService.userContext.push({ role: 'system', content: record.orders }); //replace with Segment order history
+    gptService.userContext.push({ role: 'system', content: record.inventory });
     // gptService.userContext.push({ role: "system", content: record.example }); //this was empty commenting out for now
     gptService.userContext.push({
-      role: "system",
-      content: `You can speak in many languages, but use default language ${record.conversationRelayParams.language} for this conversation from now on! Remember it as the default language, even you change language in between. treat en-US and en-GB etc. as different languages.`,
+      role: 'system',
+      content: `You can speak in many languages, but use default language ${cRelayParams.language} for this conversation from now on! Remember it as the default language, even you change language in between. treat en-US and en-GB etc. as different languages.`,
     });
 
     addLog(
-      "info",
-      `language : ${record.conversationRelayParams.language}, voice : ${record.conversationRelayParams.voice}, profanityFilter : ${record.conversationRelayParams.profanityFilter}`
+      'info',
+      `language : ${cRelayParams.language}, voice : ${cRelayParams.voice}, profanityFilter : ${cRelayParams.profanityFilter}`
     );
 
     const response = `<Response>
       <Connect>
-        <ConversationRelay url="wss://${process.env.SERVER}/sockets" dtmfDetection="${record.conversationRelayParams.dtmfDetection}" interruptible="${record.conversationRelayParams.interruptible}" voice="${record.conversationRelayParams.voice}" language="${record.conversationRelayParams.language}" profanityFilter="${record.conversationRelayParams.profanityFilter}" speechModel="${record.conversationRelayParams.speechModel}" transcriptionProvider="${record.conversationRelayParams.transcriptionProvider}" ttsProvider="${record.conversationRelayParams.ttsProvider}" welcomeGreeting="${record.conversationRelayParams.welcomeGreeting}">
+        <ConversationRelay url="wss://${process.env.SERVER}/sockets" dtmfDetection="${cRelayParams.dtmfDetection}" interruptible="${cRelayParams.interruptible}" voice="${cRelayParams.voice}" language="${cRelayParams.language}" profanityFilter="${cRelayParams.profanityFilter}" speechModel="${cRelayParams.speechModel}" transcriptionProvider="${cRelayParams.transcriptionProvider}" ttsProvider="${cRelayParams.ttsProvider}" welcomeGreeting="${cRelayParams.welcomeGreeting}">
         </ConversationRelay>
       </Connect>
     </Response>`;
 
-    res.type("text/xml");
+    res.type('text/xml');
     res.end(response.toString());
   } catch (err) {
     console.log(err);
@@ -209,40 +238,40 @@ function sendEventToClient(ws, msg) {
 
 let wsClient;
 
-app.ws("/clientSocket", (ws) => {
-  console.log("WebSocket connection established");
+app.ws('/clientSocket', (ws) => {
+  console.log('WebSocket connection established');
   wsClient = ws;
 
-  ws.on("message", (msg) => {
-    console.log("received message: ", msg);
+  ws.on('message', (msg) => {
+    console.log('received message: ', msg);
     let data = JSON.parse(msg);
 
-    if (data.type === "setup") {
+    if (data.type === 'setup') {
       let data = {
-        type: "setup",
+        type: 'setup',
         token: Date.now(), //update token to
       };
       ws.send(JSON.stringify(data));
     }
   });
 
-  ws.on("ping", () => {
-    console.log("ping received");
+  ws.on('ping', () => {
+    console.log('ping received');
   });
 
-  ws.on("error", (err) => {
-    console.log("WebSocket error: {}", err);
+  ws.on('error', (err) => {
+    console.log('WebSocket error: {}', err);
   });
 
-  ws.on("close", () => {
-    console.log("WebSocket connection closed");
+  ws.on('close', () => {
+    console.log('WebSocket connection closed');
     // removeWsConn(ws);
   });
 });
 
-app.ws("/sockets", (ws) => {
+app.ws('/sockets', (ws) => {
   try {
-    ws.on("error", console.error);
+    ws.on('error', console.error);
     // Filled in from start message
     let callSid;
 
@@ -252,28 +281,29 @@ app.ws("/sockets", (ws) => {
     let caller;
 
     // Incoming from MediaStream
-    ws.on("message", function message(data) {
+    ws.on('message', function message(data) {
       const msg = JSON.parse(data);
       console.log(msg);
       // Send conversation relay message to client websocket
       sendEventToClient(wsClient, msg);
       if (caller) {
         console.log(`${caller}`.green);
-        if (msg.type === "setup") {
+        if (msg.type === 'setup') {
           console.log(`cRelay Message: ${msg.type}`.green);
-          addInteraction(caller, `cRelay Message: ${msg.type}`, msg);
+          // addInteraction(caller, 'cRelay: Setup', msg);
         }
       }
 
       // Handle conversation relay message types
-      if (msg.type === "setup") {
-        addLog("convrelay", `convrelay socket setup ${msg.callSid}`);
+      if (msg.type === 'setup') {
+        addLog('convrelay', `convrelay socket setup ${msg.callSid}`);
         callSid = msg.callSid;
         caller = msg.from;
-        addInteraction(caller, `cRelay Message: ${msg.type}`, msg);
+        addInteraction(caller, 'cRelay: Started Conversation', msg);
+        addInteraction(caller, 'cRelay: Started Conversation', msg, true);
 
         // to do - confirm if number is needed as calling from client
-        gptService.setCallInfo("user phone number", msg.from);
+        gptService.setCallInfo('user phone number', msg.from);
 
         //trigger gpt to start
         // gptService.completion("hello", interactionCount);
@@ -288,44 +318,50 @@ app.ws("/sockets", (ws) => {
         }
       }
 
-      if (msg.type === "prompt") {
+      if (msg.type === 'prompt') {
         addLog(
-          "convrelay",
+          'convrelay',
           `convrelay -> GPT (${msg.lang}) :  ${msg.voicePrompt} `
         );
         gptService.completion(msg.voicePrompt, interactionCount);
+        addInteraction(caller, 'cRelay: Prompt', msg, true);
         interactionCount += 1;
       }
 
-      if (msg.type === "interrupt") {
+      if (msg.type === 'interrupt') {
         addLog(
-          "convrelay",
-          "convrelay interrupt: utteranceUntilInterrupt: " +
+          'convrelay',
+          'convrelay interrupt: utteranceUntilInterrupt: ' +
             msg.utteranceUntilInterrupt +
-            " durationUntilInterruptMs: " +
+            ' durationUntilInterruptMs: ' +
             msg.durationUntilInterruptMs
         );
+        
+        addInteraction(caller, 'cRelay: Interrupted Agent', msg);
+        addInteraction(caller, 'cRelay: Interrupted by Customer', msg, true);
+
         gptService.interrupt();
       }
 
-      if (msg.type === "error") {
-        addLog("convrelay", "convrelay error: " + msg.description);
-        addInteraction(caller, `cRelay Message: ${msg.type}`, msg);
+      if (msg.type === 'error') {
+        addLog('convrelay', 'convrelay error: ' + msg.description);
+        addInteraction(caller, 'cRelay: Error', msg);
       }
 
-      if (msg.type === "dtmf") {
-        addLog("convrelay", "convrelay dtmf: " + msg.digit);
-        console.log("Todo: add dtmf handling");
+      if (msg.type === 'dtmf') {
+        addLog('convrelay', 'convrelay dtmf: ' + msg.digit);
+        console.log('Todo: add dtmf handling');
       }
     });
 
-    gptService.on("gptreply", async (gptReply, final, icount) => {
+    gptService.on('gptreply', async (gptReply, final, icount) => {
       console.log(`Interaction ${icount}: GPT -> TTS: ${gptReply}`.green);
       //addLog('info', gptReply);
-      addLog("gpt", `GPT -> convrelay: Interaction ${icount}: ${gptReply}`);
+      addLog('gpt', `GPT -> convrelay: Interaction ${icount}: ${gptReply}`);
+      // addInteraction(caller, 'cRelay: GPT Response', gptReply, true);
 
       let msg = {
-        type: "text",
+        type: 'text',
         token: gptReply,
       };
 
@@ -335,13 +371,13 @@ app.ws("/sockets", (ws) => {
     });
 
     gptService.on(
-      "tools",
+      'tools',
       async (functionName, functionArgs, functionResponse) => {
-        addLog("gpt", `Function ${functionName} with args ${functionArgs}`);
-        addLog("gpt", `Function Response: ${functionResponse}`);
+        addLog('gpt', `Function ${functionName} with args ${functionArgs}`);
+        addLog('gpt', `Function Response: ${functionResponse}`);
 
         let msg = {
-          type: "functionCall",
+          type: 'functionCall',
           token: `Called function ${functionName} with args ${functionArgs}`,
         };
         sendEventToClient(wsClient, msg);
@@ -349,8 +385,12 @@ app.ws("/sockets", (ws) => {
         // Add function call to Segment
         addInteraction(caller, `${msg.type}: ${functionName}`, msg);
 
-        if (functionName == "changeLanguage" && record.changeSTT) {
-          addLog("convrelay", `convrelay ChangeLanguage to: ${functionArgs}`);
+        if (functionName == 'changeLanguage' && record.changeSTT) {
+          addLog('convrelay', `convrelay ChangeLanguage to: ${functionArgs}`);
+
+          addInteraction(caller, 'cRelay: Language change request', msg);
+          addInteraction(caller, 'cRelay: Language change request', msg, true);
+
           let jsonObj = JSON.parse(functionArgs);
           textService.setLang(jsonObj.language);
           // gptService.userContext.push({ 'role': 'assistant', 'content':`change Language to ${functionArgs}`});

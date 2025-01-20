@@ -1,12 +1,12 @@
 {
     "notes":[""],
     "workspaceId":"se-relay-25",
-    "DEV":{
+    "AGENTS":{
         "clientWriteKey":"TBD",
         "profileSpaceId":"spa_vZPX5HYfX9Dt7mVceViqjU",
         "profileSpaceKey":"BnFRmtB4DroNxih4PZcuGjTI_yi1vtnsiT_MF2EPQeyfLHcfcqrSJPGWJ4uUFapVb-j_LvfYKDB3v72Ltf6w-ki0zSGQJxPh5GERRK3eKKsMO75eBzPYAWVQgMtKHYoSkKQL5TbdTApFKAZSmqknv7xvEEnY_g_rxn0kubzsccIUEZD2xnXN4dkVqbg84hfC05QJV_K7O6PounQvPnCCnAvNwt2gy5Eb3DRjQw901-Lsey_sQrP5TWcSAl9QPW7_TgTaN8irS-5iIt_8Tn9mt5iFEz8="
     },
-    "PROD":{
+    "HUMANS":{
         "clientWriteKey":"TBD",
         "profileSpaceId":"spa_2PhW7JbaJpUwM4EQucbpJh",
         "profileSpaceKey":"FqyKLJQcX_1vlc2NLydgOBjnWkJ9hUTG-4nvusSm0JS9P7H1ZlGxFhl0dya6hIB4cfRfW33xm_pf2uNs5emf3W64hdAvQH5F__2KChNCdz77zUvqNS-0_0vYTTGED2h3jOGnKY2VuzM6bulWkMWN111beBMMcyK_-STuvKf9cQ3X3SH3-1J6e-J6h9ecEYlUiaCquqTsFXz7azlJjKCd_AEUr6gvswOUeUKBtuTYQj7ngJ-QCiEc405u5s_8UEfXKAe4P8mYrODKmJ7g2j09X6cyBww="

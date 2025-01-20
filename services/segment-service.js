@@ -1,12 +1,15 @@
-const { Analytics } = require("@segment/analytics-node");
-require("dotenv").config();
-const axios = require("axios");
+const { Analytics } = require('@segment/analytics-node');
+require('dotenv').config();
+const axios = require('axios');
 
 const profileToken = process.env.PROFILE_TOKEN;
+const agentProfileToken = process.env.AGENT_PROFILE_TOKEN;
 
 // instantiation
 const analytics = new Analytics({ writeKey: process.env.WRITE_KEY });
+const agentAnalytics = new Analytics({ writeKey: process.env.AGENT_WRITE_KEY });
 const spaceID = process.env.SPACE_ID;
+const agentSpaceID = process.env.AGENT_SPACE_ID;
 
 /*
 function addEvent(id, ts, order, price, shipment) {
@@ -117,43 +120,47 @@ function readData(jsonData) {
 
 //add a user
 const addUser = async (id, phone) => {
-  console.log("add user start");
+  console.log('add user start');
   try {
     analytics.identify({
       userId: id,
       traits: {
-        phone: phone,
+        phone,
       },
     });
   } catch (error) {
-    console.error("Error adding user:", error);
+    console.error('Error adding user:', error);
   }
 
-  console.log("add user done");
+  console.log('add user done');
 };
 
 const addVirtualAgent = (id, name, prompt, conversationRelayParams) => {
-  console.log("add virtual agent start");
+  console.log('add virtual agent start');
   try {
-    analytics.identify({
-      userId: id,
+    agentAnalytics.identify({
+      userId: id.replace('client', 'agent'),
       traits: {
-        name: name,
+        name,
         prompt: prompt,
+        phone: id.replace('agent:', ''),
         conversationRelayParams: conversationRelayParams,
       },
     });
   } catch (error) {
-    console.error("Error adding user:", error);
+    console.error('Error adding user:', error);
   }
 
-  console.log("add virtual agent done");
+  console.log('add virtual agent done');
 };
 
-const addInteraction = (id, eventName, data) => {
+const addInteraction = (id, eventName, data, forAgent = false) => {
+  const analyticsToUse = forAgent ? agentAnalytics : analytics;
+  const userId = forAgent ? id.replace('client','agent') : id;
+  console.log('adding interaction for user ID', userId, eventName);
   try {
-    analytics.track({
-      userId: id,
+    analyticsToUse.track({
+      userId,
       event: eventName,
       timestamp: Date.now(), // Add timestamp at the root level
       properties: {
@@ -161,21 +168,24 @@ const addInteraction = (id, eventName, data) => {
       },
     });
   } catch (error) {
-    console.error("Error adding addEvent:", error);
+    console.error('Error adding addEvent:', error);
   }
 };
 
-const getUserProfile = async (id) => {
+const getUserProfile = async (id, forAgent) => {
   //client:+15123485523 -> client%3A%2B15123485523
-  const userId = id.replace(/\+/g, "%2B").replace(/:/g, "%3A");
-  const baseUrl = `https://profiles.segment.com/v1/spaces/${spaceID}/collections/users/profiles/`;
+  const userId = forAgent ? id.replace('client','agent').replace(/\+/g, '%2B').replace(/:/g, '%3A') : id.replace(/\+/g, '%2B').replace(/:/g, '%3A');
+
+  const spaceToUse = forAgent ? agentSpaceID : spaceID;
+  const baseUrl = `https://profiles.segment.com/v1/spaces/${spaceToUse}/collections/users/profiles/`;
   const traitsUrl = `${baseUrl}user_id:${userId}/traits`;
+  // const eventsUrl = `${baseUrl}user_id:${userId}/events`;
   console.log(traitsUrl);
 
   // encode base64
-  const username = profileToken;
-  const password = "";
-  const credentials = Buffer.from(`${username}:${password}`).toString("base64");
+  const username = forAgent ? agentProfileToken : profileToken;
+  const password = '';
+  const credentials = Buffer.from(`${username}:${password}`).toString('base64');
 
   // set headers
   const config = {
@@ -185,13 +195,13 @@ const getUserProfile = async (id) => {
   };
   try {
     const response = await axios.get(traitsUrl, config);
-    console.log("axios" + response);
+    console.log('axios' + response);
     const traits = response.data.traits;
     console.log(traits);
     return traits;
   } catch (e) {
-    console.log("get_profile error:", error);
-    return "";
+    console.log('get_profile error:', error);
+    return '';
   }
 };
 
@@ -205,10 +215,10 @@ const updateUserProfile = async (id, traitName, traitValue) => {
         [traitName]: traitValue,
       },
     });
-    console.log("update trait done");
+    console.log('update trait done');
     return true;
   } catch (error) {
-    console.error("Error updating trait:", error);
+    console.error('Error updating trait:', error);
     return false;
   }
 };

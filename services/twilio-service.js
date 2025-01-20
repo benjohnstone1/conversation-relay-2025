@@ -1,10 +1,10 @@
-require("colors");
-require("dotenv").config();
+require('colors');
+require('dotenv').config();
 
-const AccessToken = require("twilio").jwt.AccessToken;
+const AccessToken = require('twilio').jwt.AccessToken;
 const VoiceGrant = AccessToken.VoiceGrant;
 
-const client = require("twilio")(
+const client = require('twilio')(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
@@ -13,9 +13,9 @@ const startRecording = async (textService, callSid) => {
   try {
     // textService.sendText({partialResponseIndex: null, partialResponse: 'This call will be recorded.'}, 0);
     const recording = await client.calls(callSid).recordings.create({
-      recordingChannels: "dual",
+      recordingChannels: 'dual',
       recordingStatusCallback: `https://${process.env.SERVER}/recording-complete`,
-      recordingStatusCallbackEvent: ["completed"],
+      recordingStatusCallbackEvent: ['completed'],
     });
 
     console.log(`Recording Created: ${recording.sid}`.red);
@@ -40,8 +40,8 @@ const registerVoiceClient = async (identity) => {
     accessToken.addGrant(grant);
 
     const headers = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": true,
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
     };
     return {
       statusCode: 200,
@@ -68,14 +68,14 @@ const getRecording = async (callSid) => {
     console.log(e);
     return {
       accSid: process.env.TWILIO_ACCOUNT_SID,
-      recordingSid: "",
+      recordingSid: '',
     };
   }
 };
 
 const voiceIntelligenceHandler = async (transcriptSid) => {
   console.log(
-    "voiceIntelligenceHandler : Twilio Processing - " + transcriptSid
+    'voiceIntelligenceHandler : Twilio Processing - ' + transcriptSid
   );
 
   try {
@@ -85,7 +85,7 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
       .fetch();
 
     // 2. Fetch the Transcript text
-    let transcriptText = "";
+    let transcriptText = '';
 
     const sentences = await client.intelligence.v2
       .transcripts(transcriptSid)
@@ -101,17 +101,17 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
     //3. Get agent, customer profile id
     console.log(transcriptResponse);
     const agent = transcriptResponse.channel.participants.find(
-      (p) => p.role === "Agent"
+      (p) => p.role === 'Agent'
     );
     const customer = transcriptResponse.channel.participants.find(
-      (p) => p.role === "Customer"
+      (p) => p.role === 'Customer'
     );
     console.log(agent);
     console.log(customer);
-    const agentUniqueId = agent.user_id;
+    const agentUniqueId = customer.user_id.replace('client','agent');
     const customerUniqueId = customer.user_id;
-    console.log("agent Id " + agentUniqueId);
-    console.log("customer Id " + customerUniqueId);
+    console.log('agent Id ' + agentUniqueId);
+    console.log('customer Id ' + customerUniqueId);
 
     // 4. Fetch the Operator Results
     const operatorResultsResponse = await client.intelligence.v2
@@ -124,32 +124,32 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
     });
 
     const sentimentAnalysisOR = operatorResultsResponse.find(
-      (or) => or.name === "Sentiment Analysis"
+      (or) => or.name === 'Sentiment Analysis'
     );
     const sentimentAnalysisVal = sentimentAnalysisOR?.predictedLabel;
 
     //const competitorReferenceOR = operatorResultsResponse.find(or => or.name === "Competitor References");
     //const competitorReferenceVal =  competitorReferenceOR.predictedLabel ;
 
-    console.log("Sentiment analysis " + sentimentAnalysisVal);
+    console.log('Sentiment analysis ' + sentimentAnalysisVal);
 
     let call = {
-      type: "Voice Intelligence Results",
+      type: 'Voice Intelligence Results',
       callSid: transcriptSid, // @TODO get callsid from viTranscript
       viTranscriptSid: transcriptSid,
       callerProfileId: customerUniqueId,
       agentId: agentUniqueId,
       //viOperators: operatorResultsResponse,
       viOperators: {
-        "Sentiment Analysis": `'${sentimentAnalysisVal}'`,
+        'Sentiment Analysis': `'${sentimentAnalysisVal}'`,
         //, 'Competitor References': `'${competitorReferenceVal}'`
       },
       transcript: transcriptText,
     };
     return call;
   } catch (error) {
-    console.error("Error:", error);
-    return "error";
+    console.error('Error:', error);
+    return 'error';
   }
 };
 
@@ -162,17 +162,17 @@ const createTranscript = async (recordingSid, callSid) => {
     const call = await fetchCall(callSid);
     const participants = [
       {
-        user_id: "client:conversationRelay", //specific agent - how do we grab this?
+        user_id: 'client:conversationRelay', //specific agent - how do we grab this?
         channel_participant: 2,
-        full_name: "client:conversationRelay", //can't get from callSid
-        image_url: "https://images.unsplash.com/photo-1554384645-13eab165c24b", //replace or remove image (can add for demo purposes)
-        role: "Agent",
+        full_name: 'client:conversationRelay', //can't get from callSid
+        image_url: 'https://images.unsplash.com/photo-1554384645-13eab165c24b', //replace or remove image (can add for demo purposes)
+        role: 'Agent',
       },
       {
         user_id: call.from,
         channel_participant: 1,
         full_name: call.from,
-        role: "Customer",
+        role: 'Customer',
       },
     ];
 
