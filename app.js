@@ -382,8 +382,8 @@ app.ws('/sockets', (ws) => {
         };
         sendEventToClient(wsClient, msg);
 
-        // Add function call to Segment
-        addInteraction(caller, `${msg.type}: ${functionName}`, msg);
+        // Add function call to Segment agent
+        addInteraction(caller, `Function Call: ${functionName}`, msg, true);
 
         if (functionName == 'changeLanguage' && record.changeSTT) {
           addLog('convrelay', `convrelay ChangeLanguage to: ${functionArgs}`);
