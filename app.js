@@ -187,7 +187,7 @@ app.post("/incoming", async (req, res) => {
     // add virtual agent
     if (!agentProfile) {
       addVirtualAgent(
-        agent, //id
+        user, //id is transformed in destination function
         profile.name ? profile.name + "'s Agent" : phone + "'s Agent", //name
         prompt,
         cRelayParams

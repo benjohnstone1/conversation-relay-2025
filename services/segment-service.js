@@ -139,7 +139,7 @@ const addUser = async (id, phone) => {
 const addVirtualAgent = (id, name, prompt, conversationRelayParams) => {
   console.log("add virtual agent start");
   try {
-    analytics.identify({
+    agentAnalytics.identify({
       userId: id.replace("client", "agent"),
       traits: {
         name,
