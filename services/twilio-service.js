@@ -108,7 +108,7 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
     );
     console.log(agent);
     console.log(customer);
-    const agentUniqueId = agent.user_id;
+    const agentUniqueId = customer.user_id.replace("client", "agent");
     const customerUniqueId = customer.user_id;
     console.log("agent Id " + agentUniqueId);
     console.log("customer Id " + customerUniqueId);
@@ -162,10 +162,10 @@ const createTranscript = async (recordingSid, callSid) => {
     const call = await fetchCall(callSid);
     const participants = [
       {
-        user_id: "client:conversationRelay", //specific agent - how do we grab this?
+        user_id: call.from.replace("client", "agent"),
         channel_participant: 2,
-        full_name: "client:conversationRelay", //can't get from callSid
-        image_url: "https://images.unsplash.com/photo-1554384645-13eab165c24b", //replace or remove image (can add for demo purposes)
+        full_name: call.from.replace("client", "agent"),
+        image_url: "https://images.unsplash.com/photo-1554384645-13eab165c24b",
         role: "Agent",
       },
       {

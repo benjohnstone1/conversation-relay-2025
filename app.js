@@ -77,6 +77,20 @@ app.get("/logs", (req, res) => {
 // Route to retrieve Airtable records
 app.get("/get-use-cases", async (req, res) => {
   records = await getLatestRecords();
+  // const recordFromProfile = {
+  //   conversationRelayParams: {},
+  //   prompt: '',
+  //   profile: '{}',
+  //   orders: '{}',
+  //   inventory: '{}',
+  //   example: '',
+  //   model: 'gpt-4o-2024-08-06',
+  //   changeSTT: false,
+  //   recording: true,
+  //   tools: '',
+  //   title: 'Personalized Agent'
+  // };
+  // records.push(recordFromProfile);
   res.json(records);
 });
 
@@ -110,7 +124,9 @@ app.post("/voice-intelligence-handler", async (req, res) => {
     // we also need to update the transcript particpants
 
     // add to segment
-    addInteraction(viResult.callerProfileId, viResult.type, viResult);
+    addInteraction(viResult.callerProfileId, viResult.type, viResult, false);
+    const agentId = viResult.callerProfileId.replace("client", "agent"); //do we need this?
+    addInteraction(viResult.callerProfileId, viResult.type, viResult, true);
 
     //@TODO ask andy how we add the same event to caller and agent
     //addInteraction(call.agentId, `${call.type}: ${call.callSid}`, call);
@@ -153,21 +169,35 @@ app.post("/incoming", async (req, res) => {
     const phone = user.replace("client:", "");
     addUser(user, phone);
     // const userId = user.replace(/\+/g, "%2B").replace(/:/g, "%3A"); //need to reformat to pull from segment
-    const profile = await getUserProfile(user);
+    const profile = await getUserProfile(user, false);
     console.log(`profile returned: ${JSON.stringify(profile)}`.yellow);
 
-    // add virtual agent
-    addVirtualAgent(
-      record.title, //id
-      record.title, //name
-      record.prompt,
-      record.conversationRelayParams
+    // Need to review the following if no agent exists
+
+    const agentProfile = await getUserProfile(user, true);
+    console.log(
+      `agent profile returned: ${JSON.stringify(agentProfile)}`.yellow
     );
+
+    // defer to Segment agent profile if this info has already been saved
+    const prompt = agentProfile.prompt || record.prompt; // adjust to incorporate agent traits
+    const cRelayParams =
+      agentProfile.conversationRelayParams || record.conversationRelayParams; // adjust to incorporate agent traits
+
+    // add virtual agent
+    if (!agentProfile) {
+      addVirtualAgent(
+        agent, //id
+        profile.name ? profile.name + "'s Agent" : phone + "'s Agent", //name
+        prompt,
+        cRelayParams
+      );
+    }
 
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
     // Replace Airtable records with data from Segment
-    gptService.userContext.push({ role: "system", content: record.prompt });
+    gptService.userContext.push({ role: "system", content: prompt });
     // gptService.userContext.push({ role: "system", content: record.profile }); //Airtable
     gptService.userContext.push({
       role: "system",
@@ -178,17 +208,17 @@ app.post("/incoming", async (req, res) => {
     // gptService.userContext.push({ role: "system", content: record.example }); //this was empty commenting out for now
     gptService.userContext.push({
       role: "system",
-      content: `You can speak in many languages, but use default language ${record.conversationRelayParams.language} for this conversation from now on! Remember it as the default language, even you change language in between. treat en-US and en-GB etc. as different languages.`,
+      content: `You can speak in many languages, but use default language ${cRelayParams.language} for this conversation from now on! Remember it as the default language, even you change language in between. treat en-US and en-GB etc. as different languages.`,
     });
 
     addLog(
       "info",
-      `language : ${record.conversationRelayParams.language}, voice : ${record.conversationRelayParams.voice}, profanityFilter : ${record.conversationRelayParams.profanityFilter}`
+      `language : ${cRelayParams.language}, voice : ${cRelayParams.voice}, profanityFilter : ${cRelayParams.profanityFilter}`
     );
 
     const response = `<Response>
       <Connect>
-        <ConversationRelay url="wss://${process.env.SERVER}/sockets" dtmfDetection="${record.conversationRelayParams.dtmfDetection}" interruptible="${record.conversationRelayParams.interruptible}" voice="${record.conversationRelayParams.voice}" language="${record.conversationRelayParams.language}" profanityFilter="${record.conversationRelayParams.profanityFilter}" speechModel="${record.conversationRelayParams.speechModel}" transcriptionProvider="${record.conversationRelayParams.transcriptionProvider}" ttsProvider="${record.conversationRelayParams.ttsProvider}" welcomeGreeting="${record.conversationRelayParams.welcomeGreeting}">
+        <ConversationRelay url="wss://${process.env.SERVER}/sockets" dtmfDetection="${cRelayParams.dtmfDetection}" interruptible="${cRelayParams.interruptible}" voice="${cRelayParams.voice}" language="${cRelayParams.language}" profanityFilter="${cRelayParams.profanityFilter}" speechModel="${cRelayParams.speechModel}" transcriptionProvider="${cRelayParams.transcriptionProvider}" ttsProvider="${cRelayParams.ttsProvider}" welcomeGreeting="${cRelayParams.welcomeGreeting}">
         </ConversationRelay>
       </Connect>
     </Response>`;
@@ -257,13 +287,14 @@ app.ws("/sockets", (ws) => {
       console.log(msg);
       // Send conversation relay message to client websocket
       sendEventToClient(wsClient, msg);
-      if (caller) {
-        console.log(`${caller}`.green);
-        if (msg.type === "setup") {
-          console.log(`cRelay Message: ${msg.type}`.green);
-          addInteraction(caller, `Call Started`, msg);
-        }
-      }
+      // if (caller) {
+      //   console.log(`${caller}`.green);
+      //   if (msg.type === "setup") {
+      //     console.log(`cRelay Message: ${msg.type}`.green);
+      //     addInteraction(caller, `Call Started`, msg);
+      //     addInteraction(caller, `Call Started`, msg, true);
+      //   }
+      // }
 
       // Handle conversation relay message types
       if (msg.type === "setup") {
@@ -271,12 +302,10 @@ app.ws("/sockets", (ws) => {
         callSid = msg.callSid;
         caller = msg.from;
         addInteraction(caller, `Call Started`, msg);
+        addInteraction(caller, `Call Started`, msg, true);
 
         // to do - confirm if number is needed as calling from client
         gptService.setCallInfo("user phone number", msg.from);
-
-        //trigger gpt to start
-        // gptService.completion("hello", interactionCount);
 
         interactionCount += 1;
         if (record.recording) {
@@ -305,12 +334,15 @@ app.ws("/sockets", (ws) => {
             " durationUntilInterruptMs: " +
             msg.durationUntilInterruptMs
         );
+        addInteraction(caller, `Call Interrupted`, msg);
+        addInteraction(caller, `Call Interrupted`, msg, true);
         gptService.interrupt();
       }
 
       if (msg.type === "error") {
         addLog("convrelay", "convrelay error: " + msg.description);
         addInteraction(caller, `Call Error`, msg);
+        addInteraction(caller, `Call Error`, msg, true);
       }
 
       if (msg.type === "dtmf") {
@@ -355,6 +387,7 @@ app.ws("/sockets", (ws) => {
           function_response: JSON.parse(functionResponse),
         };
         addInteraction(caller, `Function Called`, trackEvent);
+        addInteraction(caller, `Function Called`, trackEvent, true);
 
         if (functionName == "changeLanguage" && record.changeSTT) {
           addLog("convrelay", `convrelay ChangeLanguage to: ${functionArgs}`);

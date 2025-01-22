@@ -3,10 +3,13 @@ require("dotenv").config();
 const axios = require("axios");
 
 const profileToken = process.env.PROFILE_TOKEN;
+const agentProfileToken = process.env.AGENT_PROFILE_TOKEN;
 
 // instantiation
 const analytics = new Analytics({ writeKey: process.env.WRITE_KEY });
+const agentAnalytics = new Analytics({ writeKey: process.env.AGENT_WRITE_KEY });
 const spaceID = process.env.SPACE_ID;
+const agentSpaceID = process.env.AGENT_SPACE_ID;
 
 /*
 function addEvent(id, ts, order, price, shipment) {
@@ -122,7 +125,8 @@ const addUser = async (id, phone) => {
     analytics.identify({
       userId: id,
       traits: {
-        phone: phone,
+        phone,
+        // phone: phone,
       },
     });
   } catch (error) {
@@ -136,9 +140,10 @@ const addVirtualAgent = (id, name, prompt, conversationRelayParams) => {
   console.log("add virtual agent start");
   try {
     analytics.identify({
-      userId: id,
+      userId: id.replace("client", "agent"),
       traits: {
-        name: name,
+        name,
+        // name: name,
         prompt: prompt,
         conversationRelayParams: conversationRelayParams,
       },
@@ -150,9 +155,12 @@ const addVirtualAgent = (id, name, prompt, conversationRelayParams) => {
   console.log("add virtual agent done");
 };
 
-const addInteraction = (id, eventName, data) => {
+const addInteraction = (id, eventName, data, forAgent = false) => {
+  const analyticsToUse = forAgent ? agentAnalytics : analytics;
+  const userId = forAgent ? id.replace("client", "agent") : id;
+  console.log("adding interaction for user ID", userId, eventName);
   try {
-    analytics.track({
+    analyticsToUse.track({
       userId: id,
       event: eventName,
       timestamp: Date.now(), // Add timestamp at the root level
@@ -165,15 +173,18 @@ const addInteraction = (id, eventName, data) => {
   }
 };
 
-const getUserProfile = async (id) => {
+const getUserProfile = async (id, forAgent) => {
   //client:+15123485523 -> client%3A%2B15123485523
-  const userId = id.replace(/\+/g, "%2B").replace(/:/g, "%3A");
-  const baseUrl = `https://profiles.segment.com/v1/spaces/${spaceID}/collections/users/profiles/`;
+  const userId = forAgent
+    ? id.replace("client", "agent").replace(/\+/g, "%2B").replace(/:/g, "%3A")
+    : id.replace(/\+/g, "%2B").replace(/:/g, "%3A");
+  const spaceToUse = forAgent ? agentSpaceID : spaceID;
+  const baseUrl = `https://profiles.segment.com/v1/spaces/${spaceToUse}/collections/users/profiles/`;
   const traitsUrl = `${baseUrl}user_id:${userId}/traits`;
   console.log(traitsUrl);
 
   // encode base64
-  const username = profileToken;
+  const username = forAgent ? agentProfileToken : profileToken;
   const password = "";
   const credentials = Buffer.from(`${username}:${password}`).toString("base64");
 
