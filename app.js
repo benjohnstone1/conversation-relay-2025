@@ -180,8 +180,9 @@ app.post("/incoming", async (req, res) => {
 
     // add virtual agent
     // if (!agentProfile) {
+    // this creates or identifies the agent profile
     addVirtualAgent(
-      user, //id is transformed in destination function
+      user, //id is transformed in destination function //this would make a unique agent per profile - need to discuss with Andy how we handle this...
       profile.name ? profile.name + "'s Agent" : phone + "'s Agent", //name
       prompt, //we would only want to add this first time?
       cRelayParams //we would only want to add this first time?
@@ -286,14 +287,6 @@ app.ws("/sockets", (ws) => {
       console.log(msg);
       // Send conversation relay message to client websocket
       sendEventToClient(wsClient, msg);
-      // if (caller) {
-      //   console.log(`${caller}`.green);
-      //   if (msg.type === "setup") {
-      //     console.log(`cRelay Message: ${msg.type}`.green);
-      //     addInteraction(caller, `Call Started`, msg);
-      //     addInteraction(caller, `Call Started`, msg, true);
-      //   }
-      // }
 
       // Handle conversation relay message types
       if (msg.type === "setup") {
@@ -303,7 +296,6 @@ app.ws("/sockets", (ws) => {
         addInteraction(caller, `Call Started`, msg);
         addInteraction(caller, `Call Started`, msg, true);
 
-        // to do - confirm if number is needed as calling from client
         gptService.setCallInfo("user phone number", msg.from);
 
         interactionCount += 1;

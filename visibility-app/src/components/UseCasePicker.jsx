@@ -301,7 +301,7 @@ const UseCasePicker = (props) => {
             handleConfigUpdate={handleConfigUpdate}
           />
           <VisualPickerRadioGroup
-            legend="Select Use Case"
+            legend="Select Agent"
             name="visual-picker"
             value={template}
             onChange={(newTemplate) => {

@@ -13,7 +13,16 @@ import "react-international-phone/style.css";
 
 // Twilio Paste
 import { Theme } from "@twilio-paste/core/dist/theme";
-import { Box, Heading, Label, Button, Stack } from "@twilio-paste/core";
+import {
+  Box,
+  Heading,
+  Label,
+  Button,
+  Stack,
+  InPageNavigation,
+  InPageNavigationItem,
+} from "@twilio-paste/core";
+
 // import { Switch } from "@twilio-paste/core";
 
 import UseCasePicker from "./components/UseCasePicker";
@@ -23,6 +32,7 @@ export const VoxrayPhone = () => {
   const [loading, setLoading] = useState(true);
   // const [noiseCancellation, setNoiseCancellation] = useState(false);
   const [phone, setPhone] = useState("");
+  const [whichPage, setWhichPage] = useState(true);
 
   let voiceToken = useRef("");
   // const processor = new AudioProcessor();
@@ -148,9 +158,34 @@ export const VoxrayPhone = () => {
                 </div>
               )}
 
-              <UseCasePicker device={device} loading={loading} />
-              <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
-              <canvas id="audio-visualizer"></canvas>
+              <InPageNavigation>
+                <InPageNavigationItem
+                  currentPage={whichPage}
+                  onClick={() => {
+                    setWhichPage(true);
+                  }}
+                >
+                  A/B Testing
+                </InPageNavigationItem>
+                <InPageNavigationItem
+                  currentPage={!whichPage}
+                  onClick={() => {
+                    setWhichPage(false);
+                  }}
+                >
+                  Personalized Agent
+                </InPageNavigationItem>
+              </InPageNavigation>
+              {whichPage ? (
+                <div>
+                  <UseCasePicker device={device} loading={loading} />
+                  <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
+                  <canvas id="audio-visualizer"></canvas>
+                </div>
+              ) : (
+                <div></div>
+              )}
+
               {/* <ReactAudioVisualizer /> */}
               {/* <LatencyVisualizer /> */}
             </Box>
