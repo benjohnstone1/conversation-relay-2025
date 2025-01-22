@@ -161,7 +161,7 @@ const addInteraction = (id, eventName, data, forAgent = false) => {
   console.log("adding interaction for user ID", userId, eventName);
   try {
     analyticsToUse.track({
-      userId: id,
+      userId,
       event: eventName,
       timestamp: Date.now(), // Add timestamp at the root level
       properties: {

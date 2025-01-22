@@ -174,25 +174,24 @@ app.post("/incoming", async (req, res) => {
 
     // Need to review the following if no agent exists
 
-    const agentProfile = await getUserProfile(user, true);
+    // defer to Segment agent profile if this info has already been saved -- we would only do this personalized agent
+    const prompt = record.prompt; //agentProfile.prompt || record.prompt; // adjust to incorporate agent traits
+    const cRelayParams = record.conversationRelayParams; //agentProfile.conversationRelayParams || record.conversationRelayParams; // adjust to incorporate agent traits
+
+    // add virtual agent
+    // if (!agentProfile) {
+    addVirtualAgent(
+      user, //id is transformed in destination function
+      profile.name ? profile.name + "'s Agent" : phone + "'s Agent", //name
+      prompt, //we would only want to add this first time?
+      cRelayParams //we would only want to add this first time?
+    );
+    // }
+
+    const agentProfile = await getUserProfile(user, true); //may or may not be used? only for personalized would this matter?
     console.log(
       `agent profile returned: ${JSON.stringify(agentProfile)}`.yellow
     );
-
-    // defer to Segment agent profile if this info has already been saved
-    const prompt = agentProfile.prompt || record.prompt; // adjust to incorporate agent traits
-    const cRelayParams =
-      agentProfile.conversationRelayParams || record.conversationRelayParams; // adjust to incorporate agent traits
-
-    // add virtual agent
-    if (!agentProfile) {
-      addVirtualAgent(
-        user, //id is transformed in destination function
-        profile.name ? profile.name + "'s Agent" : phone + "'s Agent", //name
-        prompt,
-        cRelayParams
-      );
-    }
 
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
