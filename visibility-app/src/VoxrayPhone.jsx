@@ -6,25 +6,26 @@ import audiovisualizer from "./templates/audiovisualizer";
 // import AudioDevices from "./components/AudioDevices";
 // import ReactAudioVisualizer from "./components/ReactAudioVisualizer";
 // import LatencyVisualizer from "./components/LatencyVisualizer";
-import AudioProcessor from "./components/AudioProcessor.ts";
+// import AudioProcessor from "./AudioProcessor.ts";
 
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
 
 // Twilio Paste
 import { Theme } from "@twilio-paste/core/dist/theme";
-import { Box, Heading, Label, Switch, Button, Stack } from "@twilio-paste/core";
+import { Box, Heading, Label, Button, Stack } from "@twilio-paste/core";
+// import { Switch } from "@twilio-paste/core";
 
 import UseCasePicker from "./components/UseCasePicker";
 
 export const VoxrayPhone = () => {
   const [device, setDevice] = useState();
   const [loading, setLoading] = useState(true);
-  const [noiseCancellation, setNoiseCancellation] = useState(false);
+  // const [noiseCancellation, setNoiseCancellation] = useState(false);
   const [phone, setPhone] = useState("");
 
   let voiceToken = useRef("");
-  const processor = new AudioProcessor();
+  // const processor = new AudioProcessor();
 
   const registerTwilioDeviceHandlers = (device) => {
     device.on("incoming", function (conn) {
@@ -61,25 +62,25 @@ export const VoxrayPhone = () => {
     });
   };
 
-  const enableAudioProcessor = async () => {
-    if (!device.audio._processor) {
-      await device.audio.addProcessor(processor);
-      console.log("Added audio processor");
-      setNoiseCancellation(true); // this is causing the issue
-    } else {
-      console.log("Audio processor already enabled");
-    }
-  };
+  // const enableAudioProcessor = async () => {
+  //   if (!device.audio._processor) {
+  //     await device.audio.addProcessor(processor);
+  //     console.log("Added audio processor");
+  //     setNoiseCancellation(true); // this is causing the issue
+  //   } else {
+  //     console.log("Audio processor already enabled");
+  //   }
+  // };
 
-  const disableAudioProcessor = async () => {
-    if (device.audio._processor) {
-      await device.audio.removeProcessor(device.audio._processor);
-      console.log("Disabled audio processor");
-      setNoiseCancellation(false); // this is causing the issue
-    } else {
-      console.log("No audio processor to remove");
-    }
-  };
+  // const disableAudioProcessor = async () => {
+  //   if (device.audio._processor) {
+  //     await device.audio.removeProcessor(device.audio._processor);
+  //     console.log("Disabled audio processor");
+  //     setNoiseCancellation(false); // this is causing the issue
+  //   } else {
+  //     console.log("No audio processor to remove");
+  //   }
+  // };
 
   const createVoiceDevice = async () => {
     const myDevice = await new Device(voiceToken.current, {
@@ -107,35 +108,6 @@ export const VoxrayPhone = () => {
     }
   };
 
-  // useEffect(() => {
-  //   const registerVoiceClient = async () => {
-  //     if (!voiceToken.current) {
-  //       try {
-  //         const registerVoiceClientURL =
-  //           process.env.REACT_APP_REGISTER_VOICE_CLIENT_URL;
-  //         const res = await axios.get(registerVoiceClientURL);
-  //         voiceToken.current = res.data;
-  //         createVoiceDevice();
-  //       } catch (e) {
-  //         console.log(e);
-  //       }
-  //     }
-  //   };
-
-  //   const createVoiceDevice = async () => {
-  //     const myDevice = await new Device(voiceToken.current, {
-  //       logLevel: 3,
-  //       codecPreferences: ["opus", "pcmu"],
-  //     });
-  //     setDevice(myDevice);
-  //     setLoading(false);
-  //     myDevice.register();
-  //     registerTwilioDeviceHandlers(myDevice);
-  //   };
-  //   registerVoiceClient();
-  //   audiovisualizer.setupAudioVisualizerCanvas();
-  // }, []);
-
   return (
     <Theme.Provider theme="Twilio">
       <Box paddingX="space100">
@@ -162,17 +134,18 @@ export const VoxrayPhone = () => {
                   </Stack>
                 </div>
               ) : (
-                <Switch
-                  value={noiseCancellation}
-                  onClick={(e) => {
-                    noiseCancellation === false
-                      ? enableAudioProcessor()
-                      : disableAudioProcessor();
-                  }}
-                >
-                  Enable Noise Cancellation (Placeholder for Krisp - acts like
-                  mute for now)
-                </Switch>
+                <div>
+                  {/* <Switch
+                    value={noiseCancellation}
+                    onClick={(e) => {
+                      noiseCancellation === false
+                        ? enableAudioProcessor()
+                        : disableAudioProcessor();
+                    }}
+                  >
+                    Enable Noise Cancellation
+                  </Switch> */}
+                </div>
               )}
 
               <UseCasePicker device={device} loading={loading} />
