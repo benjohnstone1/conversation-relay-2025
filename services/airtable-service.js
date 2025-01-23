@@ -127,6 +127,7 @@ async function updateLatestRecord(data) {
       .firstPage();
 
     // Create record object update
+    console.log(data);
     let recordObj = {
       dtmfDetection: data.conversationRelayParams.dtmfDetection,
       interruptByDtmf: data.conversationRelayParams.interruptByDtmf,
@@ -138,12 +139,12 @@ async function updateLatestRecord(data) {
       ttsProvider: data.conversationRelayParams.ttsProvider,
       Voice: data.conversationRelayParams.voice, //capitolized (consider changing in base)
       welcomeGreeting: data.conversationRelayParams.welcomeGreeting,
-      // brevity: data.conversationRelayParams.brevity,
-      // formality: data.conversationRelayParams.formality,
-      // rizz: data.conversationRelayParams.rizz,
-      // genZ: data.conversationRelayParams.genZ,
-      // grumpiness: data.conversationRelayParams.grumpiness,
-      // pirate: rdata.conversationRelayParams.pirate,
+      Brevity: data.brevity,
+      Formality: data.formality,
+      Rizz: data.rizz,
+      GenZ: data.genZ,
+      Grumpiness: data.grumpiness,
+      Pirate: data.pirate,
       // Prompt: data.prompt, //capitolized (consider changing in base)
       // Inventory: data.inventory,
       // Example: data.example,

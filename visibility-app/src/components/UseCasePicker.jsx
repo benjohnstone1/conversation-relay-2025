@@ -255,6 +255,7 @@ const UseCasePicker = (props) => {
     const getConfig = async () => {
       try {
         const config = await axios.get(useCaseURL);
+        console.log(config.data);
         setConfig(config.data);
       } catch (e) {
         console.log(e);
@@ -327,18 +328,55 @@ const UseCasePicker = (props) => {
                       </Text>
                     </MediaBody>
                   </MediaObject>
-                  <Box>
-                    <MediaObject verticalAlign="center">
-                      <MediaFigure spacing="space50"></MediaFigure>
-                      <MediaBody>
-                        <Text as="div" fontWeight="fontWeightSemibold">
-                          Welcome:
-                        </Text>
-                        <Text as="div" color="colorTextWeak">
-                          {item.conversationRelayParams.welcomeGreeting}
-                        </Text>
-                      </MediaBody>
-                    </MediaObject>
+                  <Box display="flex" columnGap="space120">
+                    <MediaBody>
+                      <Text as="div" fontWeight="fontWeightSemibold">
+                        Brevity
+                      </Text>
+                      <Text as="div" color="colorTextWeak">
+                        {item.brevity}%
+                      </Text>
+                    </MediaBody>
+                    <MediaBody>
+                      <Text as="div" fontWeight="fontWeightSemibold">
+                        Formality
+                      </Text>
+                      <Text as="div" color="colorTextWeak">
+                        {item.formality}%
+                      </Text>
+                    </MediaBody>
+                    <MediaBody>
+                      <Text as="div" fontWeight="fontWeightSemibold">
+                        Rizz
+                      </Text>
+                      <Text as="div" color="colorTextWeak">
+                        {item.rizz}%
+                      </Text>
+                    </MediaBody>
+                    <MediaBody>
+                      <Text as="div" fontWeight="fontWeightSemibold">
+                        GenZ
+                      </Text>
+                      <Text as="div" color="colorTextWeak">
+                        {item.genZ}%
+                      </Text>
+                    </MediaBody>
+                    <MediaBody>
+                      <Text as="div" fontWeight="fontWeightSemibold">
+                        Grumpiness
+                      </Text>
+                      <Text as="div" color="colorTextWeak">
+                        {item.grumpiness}%
+                      </Text>
+                    </MediaBody>
+                    <MediaBody>
+                      <Text as="div" fontWeight="fontWeightSemibold">
+                        Pirate
+                      </Text>
+                      <Text as="div" color="colorTextWeak">
+                        {item.pirate}%
+                      </Text>
+                    </MediaBody>
                   </Box>
                   <Box display="flex" columnGap="space50">
                     {template === index.toString() ? (

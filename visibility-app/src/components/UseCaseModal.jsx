@@ -18,6 +18,7 @@ import {
   Option,
   TextArea,
   HelpText,
+  Slider,
 } from "@twilio-paste/core";
 
 import { useToaster, Toaster } from "@twilio-paste/core/dist/toast";
@@ -48,11 +49,7 @@ export function UseCaseModal(props) {
     );
 
     let data = config[template];
-    console.log(data.conversationRelayParams);
-
     const updateURL = process.env.REACT_APP_UPDATE_USE_CASE_URL;
-
-    console.log(updateURL);
 
     try {
       await axios.post(updateURL, data);
@@ -142,6 +139,103 @@ export function UseCaseModal(props) {
           <ModalHeading as="h3">Configure Use Case</ModalHeading>
         </ModalHeader>
         <ModalBody>
+          <Card padding="space70">
+            <Heading as="h4" variant="heading40">
+              Agent Input Variables
+            </Heading>
+            <Form maxWidth="size70">
+              <FormControl>
+                <Label htmlFor="brevitySlider">Brevity</Label>
+                <HelpText as="div" color="colorTextWeak">
+                  How concise an agent should be: {config[template]?.brevity}
+                </HelpText>
+                <Slider
+                  id="brevitySlider"
+                  value={config[template]?.brevity}
+                  onChange={(e) => {
+                    const updatedConfig = [...config];
+                    updatedConfig[template].brevity = e;
+                    handleConfigUpdate(updatedConfig);
+                  }}
+                />
+              </FormControl>
+              <FormControl>
+                <Label htmlFor="formalitySlider">Formality</Label>
+                <HelpText as="div" color="colorTextWeak">
+                  How formal should an agent be: {config[template]?.formality}
+                </HelpText>
+                <Slider
+                  id="formalitySlider"
+                  value={config[template]?.formality}
+                  onChange={(e) => {
+                    const updatedConfig = [...config];
+                    updatedConfig[template].formality = e;
+                    handleConfigUpdate(updatedConfig);
+                  }}
+                />
+              </FormControl>
+              <FormControl>
+                <Label htmlFor="rizzSlider">Rizz</Label>
+                <HelpText as="div" color="colorTextWeak">
+                  How much rizz should an agent have: {config[template]?.rizz}
+                </HelpText>
+                <Slider
+                  id="rizzSlider"
+                  value={config[template]?.rizz}
+                  onChange={(e) => {
+                    const updatedConfig = [...config];
+                    updatedConfig[template].rizz = e;
+                    handleConfigUpdate(updatedConfig);
+                  }}
+                />
+              </FormControl>
+              <FormControl>
+                <Label htmlFor="genzSlider">GenZ</Label>
+                <HelpText as="div" color="colorTextWeak">
+                  How gen Z should an agent be: {config[template]?.genZ}
+                </HelpText>
+                <Slider
+                  id="genzSlider"
+                  value={config[template]?.genZ}
+                  onChange={(e) => {
+                    const updatedConfig = [...config];
+                    updatedConfig[template].genZ = e;
+                    handleConfigUpdate(updatedConfig);
+                  }}
+                />
+              </FormControl>
+              <FormControl>
+                <Label htmlFor="grumpinessSlider">Grumpiness</Label>
+                <HelpText as="div" color="colorTextWeak">
+                  How grumpy should an agent be: {config[template]?.grumpiness}
+                </HelpText>
+                <Slider
+                  id="grumpinessSlider"
+                  value={config[template]?.grumpiness}
+                  onChange={(e) => {
+                    const updatedConfig = [...config];
+                    updatedConfig[template].grumpiness = e;
+                    handleConfigUpdate(updatedConfig);
+                  }}
+                />
+              </FormControl>
+              <FormControl>
+                <Label htmlFor="pirateSlider">Pirate</Label>
+                <HelpText as="div" color="colorTextWeak">
+                  How piratey should an agent be: {config[template]?.pirate}
+                </HelpText>
+                <Slider
+                  id="pirateSlider"
+                  value={config[template]?.pirate}
+                  onChange={(e) => {
+                    const updatedConfig = [...config];
+                    updatedConfig[template].pirate = e;
+                    handleConfigUpdate(updatedConfig);
+                  }}
+                />
+              </FormControl>
+            </Form>
+          </Card>
           <Card padding="space70">
             <Heading as="h4" variant="heading40">
               Conversation Relay Parameters
