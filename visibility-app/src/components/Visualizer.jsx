@@ -33,7 +33,6 @@ const Visualizer = forwardRef((props, ref) => {
       console.log("WebSocket call opened:", event);
       socket.send(JSON.stringify({ type: "setup" }));
       setMessages(" --- Connected to ConversationRelay ---\n");
-      setMessages((prev) => prev + props.welcomeGreeting);
     };
 
     socket.onmessage = function (event) {

@@ -23,6 +23,8 @@ const {
   voiceIntelligenceHandler,
 } = require("./services/twilio-service");
 // const { prompt, userProfile, orderHistory } = require("./services/prompt");
+const { traitInputScaleGuidelines } = require("./services/prompt");
+
 const {
   getLatestRecords,
   updateLatestRecord,
@@ -170,12 +172,24 @@ app.post("/incoming", async (req, res) => {
     addUser(user, phone);
     // const userId = user.replace(/\+/g, "%2B").replace(/:/g, "%3A"); //need to reformat to pull from segment
     const profile = await getUserProfile(user, false);
-    console.log(`profile returned: ${JSON.stringify(profile)}`.yellow);
+    // console.log(`profile returned: ${JSON.stringify(profile)}`.yellow);
 
     // Need to review the following if no agent exists
 
     // defer to Segment agent profile if this info has already been saved -- we would only do this personalized agent
-    const prompt = record.prompt; //agentProfile.prompt || record.prompt; // adjust to incorporate agent traits
+    // const prompt = record.prompt; //agentProfile.prompt || record.prompt; // adjust to incorporate agent traits
+
+    // Replace agentInputScores
+    let prompt = record.prompt
+      .replace("<<Brevity>>", record.brevity)
+      .replace("<<Formality>>", record.formality)
+      .replace("<<Rizz>>", record.rizz)
+      .replace("<<GenZ>>", record.genZ)
+      .replace("<<Grumpiness>>", record.grumpiness)
+      .replace("<<Pirate>>", record.pirate);
+
+    console.log(`prompt returned: ${JSON.stringify(prompt)}`.red);
+
     const cRelayParams = record.conversationRelayParams; //agentProfile.conversationRelayParams || record.conversationRelayParams; // adjust to incorporate agent traits
 
     // add virtual agent
@@ -184,25 +198,39 @@ app.post("/incoming", async (req, res) => {
     addVirtualAgent(
       user, //id is transformed in destination function //this would make a unique agent per profile - need to discuss with Andy how we handle this...
       profile.name ? profile.name + "'s Agent" : phone + "'s Agent", //name
+      {
+        brevity: record.brevity,
+        formality: record.formality,
+        rizz: record.rizz,
+        genZ: record.genZ,
+        grumpiness: record.grumpiness,
+        pirate: record.pirate,
+      },
       prompt, //we would only want to add this first time?
       cRelayParams //we would only want to add this first time?
     );
     // }
 
     const agentProfile = await getUserProfile(user, true); //may or may not be used? only for personalized would this matter?
-    console.log(
-      `agent profile returned: ${JSON.stringify(agentProfile)}`.yellow
-    );
+    // console.log(
+    //   `agent profile returned: ${JSON.stringify(agentProfile)}`.yellow
+    // );
 
     // Initialize GPT service
     gptService = new GptService(record.model, wsClient);
     // Replace Airtable records with data from Segment
+
+    gptService.userContext.push({
+      role: "system",
+      content: traitInputScaleGuidelines,
+    });
     gptService.userContext.push({ role: "system", content: prompt });
     // gptService.userContext.push({ role: "system", content: record.profile }); //Airtable
     gptService.userContext.push({
       role: "system",
       content: JSON.stringify(profile),
     });
+
     gptService.userContext.push({ role: "system", content: record.orders }); //replace with Segment order history
     gptService.userContext.push({ role: "system", content: record.inventory });
     // gptService.userContext.push({ role: "system", content: record.example }); //this was empty commenting out for now
@@ -216,9 +244,11 @@ app.post("/incoming", async (req, res) => {
       `language : ${cRelayParams.language}, voice : ${cRelayParams.voice}, profanityFilter : ${cRelayParams.profanityFilter}`
     );
 
+    // Removed welcomeGreeting as welcome will be a triggered response based on agent input values welcomeGreeting="${cRelayParams.welcomeGreeting}"
+
     const response = `<Response>
       <Connect>
-        <ConversationRelay url="wss://${process.env.SERVER}/sockets" dtmfDetection="${cRelayParams.dtmfDetection}" interruptible="${cRelayParams.interruptible}" voice="${cRelayParams.voice}" language="${cRelayParams.language}" profanityFilter="${cRelayParams.profanityFilter}" speechModel="${cRelayParams.speechModel}" transcriptionProvider="${cRelayParams.transcriptionProvider}" ttsProvider="${cRelayParams.ttsProvider}" welcomeGreeting="${cRelayParams.welcomeGreeting}">
+        <ConversationRelay url="wss://${process.env.SERVER}/sockets" dtmfDetection="${cRelayParams.dtmfDetection}" interruptible="${cRelayParams.interruptible}" voice="${cRelayParams.voice}" language="${cRelayParams.language}" profanityFilter="${cRelayParams.profanityFilter}" speechModel="${cRelayParams.speechModel}" transcriptionProvider="${cRelayParams.transcriptionProvider}" ttsProvider="${cRelayParams.ttsProvider}">
         </ConversationRelay>
       </Connect>
     </Response>`;
@@ -297,6 +327,9 @@ app.ws("/sockets", (ws) => {
         addInteraction(caller, `Call Started`, msg, true);
 
         gptService.setCallInfo("user phone number", msg.from);
+
+        //trigger gpt to start
+        gptService.completion("Hello", interactionCount);
 
         interactionCount += 1;
         if (record.recording) {

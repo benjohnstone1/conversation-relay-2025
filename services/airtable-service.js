@@ -46,6 +46,12 @@ async function getRecordByTitle(data) {
       recording: record.get("Recording") || false,
       tools: record.get("tools") || "",
       title: record.get("Title"),
+      brevity: record.get("Brevity") || 0,
+      formality: record.get("Formality") || 0,
+      rizz: record.get("Rizz") || 0,
+      genZ: record.get("GenZ") || 0,
+      grumpiness: record.get("Grumpiness") || 0,
+      pirate: record.get("Pirate") || 0,
     };
     return recordObj;
   } catch (error) {
@@ -93,6 +99,12 @@ async function getLatestRecords() {
         recording: records[i].get("Recording") || false,
         tools: records[i].get("tools") || "",
         title: records[i].get("Title"),
+        brevity: records[i].get("Brevity") || 0,
+        formality: records[i].get("Formality") || 0,
+        rizz: records[i].get("Rizz") || 0,
+        genZ: records[i].get("GenZ") || 0,
+        grumpiness: records[i].get("Grumpiness") || 0,
+        pirate: records[i].get("Pirate") || 0,
       };
       recArr.push(recordObj);
     }
@@ -126,6 +138,12 @@ async function updateLatestRecord(data) {
       ttsProvider: data.conversationRelayParams.ttsProvider,
       Voice: data.conversationRelayParams.voice, //capitolized (consider changing in base)
       welcomeGreeting: data.conversationRelayParams.welcomeGreeting,
+      // brevity: data.conversationRelayParams.brevity,
+      // formality: data.conversationRelayParams.formality,
+      // rizz: data.conversationRelayParams.rizz,
+      // genZ: data.conversationRelayParams.genZ,
+      // grumpiness: data.conversationRelayParams.grumpiness,
+      // pirate: rdata.conversationRelayParams.pirate,
       // Prompt: data.prompt, //capitolized (consider changing in base)
       // Inventory: data.inventory,
       // Example: data.example,
