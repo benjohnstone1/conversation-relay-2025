@@ -78,6 +78,9 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
     "voiceIntelligenceHandler : Twilio Processing - " + transcriptSid
   );
 
+  const recordingSid = await getRecordingSid(transcriptSid);
+  const callSid = await getCallSid(recordingSid);
+
   try {
     // 1. Fetch the Transcript
     const transcriptResponse = await client.intelligence.v2
@@ -135,7 +138,7 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
 
     let call = {
       type: "Voice Intelligence Results",
-      callSid: transcriptSid, // @TODO get callsid from viTranscript
+      callSid: callSid, // @TODO get callsid from viTranscript
       viTranscriptSid: transcriptSid,
       callerProfileId: customerUniqueId,
       agentId: agentUniqueId,
@@ -190,6 +193,20 @@ const createTranscript = async (recordingSid, callSid) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+const getRecordingSid = async (transcriptSid) => {
+  const media = await client.intelligence.v2.transcripts(transcriptSid).fetch();
+  const recordingSid = media.channel.media_properties.source_sid;
+  console.log(recordingSid);
+  return recordingSid;
+};
+
+const getCallSid = async (recordingSid) => {
+  const recording = await client.recordings(recordingSid).fetch();
+  const callSid = recording.callSid;
+  console.log(callSid);
+  return callSid;
 };
 
 module.exports = {
