@@ -125,7 +125,7 @@ export const VoxrayPhone = () => {
           <Box display="flex" flexDirection="column">
             <Box padding="space50">
               <Heading as="h2" variant="heading20">
-                SinCity SizzleRelay AI Tuner
+                SinCity SizzleRelay AI AutoTuner
                 {/* <AudioDevices /> */}
               </Heading>
               {/* <DBProfile /> */}

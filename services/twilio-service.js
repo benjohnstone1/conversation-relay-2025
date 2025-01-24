@@ -131,10 +131,18 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
     );
     const sentimentAnalysisVal = sentimentAnalysisOR?.predictedLabel;
 
+    const CSAT = operatorResultsResponse.find((or) => or.name === "CSAT");
+
+    const conversationSummary = operatorResultsResponse.find(
+      (or) => or.operator_sid === "LY8d2be74b94a34733b28594fadf331f0c"
+    );
+
+    console.log("CSAT" + CSAT);
+
     //const competitorReferenceOR = operatorResultsResponse.find(or => or.name === "Competitor References");
     //const competitorReferenceVal =  competitorReferenceOR.predictedLabel ;
 
-    console.log("Sentiment analysis " + sentimentAnalysisVal);
+    // console.log("Sentiment analysis " + sentimentAnalysisVal);
 
     let call = {
       type: "Voice Intelligence Results",
@@ -144,8 +152,9 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
       agentId: agentUniqueId,
       //viOperators: operatorResultsResponse,
       viOperators: {
-        "Sentiment Analysis": `'${sentimentAnalysisVal}'`,
-        //, 'Competitor References': `'${competitorReferenceVal}'`
+        "Sentiment Analysis": `${sentimentAnalysisVal}`,
+        CSAT: `${CSAT?.textGenerationResults?.result}`,
+        "Conversation Summary": `${conversationSummary?.result}`,
       },
       transcript: transcriptText,
     };

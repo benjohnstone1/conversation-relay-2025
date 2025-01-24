@@ -167,7 +167,15 @@ app.post("/incoming", async (req, res) => {
       title: req.body.Title || "Owl Shoes ISV Summit SF",
     });
 
-    const {brevity, formality, rizz, genZ, grumpiness, pirate, conversationRelayParams: cRelayParams} = record
+    const {
+      brevity,
+      formality,
+      rizz,
+      genZ,
+      grumpiness,
+      pirate,
+      conversationRelayParams: cRelayParams,
+    } = record;
 
     // Trigger Segment identity
     let user = req.body.From; // e.g. "client:+1647XXXXXX"
@@ -193,9 +201,9 @@ app.post("/incoming", async (req, res) => {
 
     console.log(`prompt returned: ${JSON.stringify(prompt)}`.red);
 
-    const {Caller, CallSid} = req.body
-    const callContext = {...record, ...req.body}
-    addInteraction(user, 'Call with Agent: Start', callContext)
+    const { Caller, CallSid } = req.body;
+    const callContext = { ...record, ...req.body };
+    addInteraction(user, "Call with Agent: Start", callContext);
 
     // add virtual agent
     // this creates or identifies the agent profile
@@ -355,7 +363,7 @@ app.ws("/sockets", (ws) => {
       }
 
       if (msg.type === "interrupt") {
-        const callContext = {...msg, caller, callSid}
+        const callContext = { ...msg, caller, callSid };
         addLog(
           "convrelay",
           "convrelay interrupt: utteranceUntilInterrupt: " +
