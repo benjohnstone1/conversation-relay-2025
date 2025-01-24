@@ -158,6 +158,7 @@ app.get("/get-recording", async (req, res) => {
 });
 
 app.post("/incoming", async (req, res) => {
+  // console.log('/incoming req', req)
   try {
     logs.length = 0; // Clear logs
     addLog("info", "incoming call started");
@@ -165,6 +166,8 @@ app.post("/incoming", async (req, res) => {
     record = await getRecordByTitle({
       title: req.body.Title || "Owl Shoes ISV Summit SF",
     });
+
+    const {brevity, formality, rizz, genZ, grumpiness, pirate, conversationRelayParams: cRelayParams} = record
 
     // Trigger Segment identity
     let user = req.body.From; // e.g. "client:+1647XXXXXX"
@@ -181,30 +184,29 @@ app.post("/incoming", async (req, res) => {
 
     // Replace agentInputScores
     let prompt = record.prompt
-      .replace("<<Brevity>>", record.brevity)
-      .replace("<<Formality>>", record.formality)
-      .replace("<<Rizz>>", record.rizz)
-      .replace("<<GenZ>>", record.genZ)
-      .replace("<<Grumpiness>>", record.grumpiness)
-      .replace("<<Pirate>>", record.pirate);
+      .replace("<<Brevity>>", brevity)
+      .replace("<<Formality>>", formality)
+      .replace("<<Rizz>>", rizz)
+      .replace("<<GenZ>>", genZ)
+      .replace("<<Grumpiness>>", grumpiness)
+      .replace("<<Pirate>>", pirate);
 
     console.log(`prompt returned: ${JSON.stringify(prompt)}`.red);
 
-    const cRelayParams = record.conversationRelayParams; //agentProfile.conversationRelayParams || record.conversationRelayParams; // adjust to incorporate agent traits
+    addInteraction(user, 'Call with Agent: Start', ...record)
 
     // add virtual agent
-    // if (!agentProfile) {
     // this creates or identifies the agent profile
     addVirtualAgent(
       user, //id is transformed in destination function //this would make a unique agent per profile - need to discuss with Andy how we handle this...
       profile.name ? profile.name + "'s Agent" : phone + "'s Agent", //name
       {
-        brevity: record.brevity,
-        formality: record.formality,
-        rizz: record.rizz,
-        genZ: record.genZ,
-        grumpiness: record.grumpiness,
-        pirate: record.pirate,
+        brevity: brevity,
+        formality: formality,
+        rizz: rizz,
+        genZ: genZ,
+        grumpiness: grumpiness,
+        pirate: pirate,
       },
       prompt, //we would only want to add this first time?
       cRelayParams //we would only want to add this first time?
@@ -323,7 +325,7 @@ app.ws("/sockets", (ws) => {
         addLog("convrelay", `convrelay socket setup ${msg.callSid}`);
         callSid = msg.callSid;
         caller = msg.from;
-        addInteraction(caller, `Call Started`, msg);
+        // addInteraction(caller, `Call Started`, msg);
         addInteraction(caller, `Call Started`, msg, true);
 
         gptService.setCallInfo("user phone number", msg.from);
