@@ -3,30 +3,6 @@ const tools = [
   {
     type: "function",
     function: {
-      name: "placeOrder",
-      say: "All right, I'm just going to ring that up in our system.",
-      description:
-        "Places an order for a set of shoes, after double confirmed with the customer.",
-      parameters: {
-        type: "object",
-        properties: {
-          order: {
-            type: "string",
-            description:
-              "The order summary including model of shoes, price, shipping method and information",
-          },
-          number: {
-            type: "string",
-            description: "The user phone number in E.164 format",
-          },
-        },
-        required: ["order", "number"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
       name: "getWeather",
       description: "Get the current weather for a given location.",
       say: "Let me check the weather for you.",
@@ -37,8 +13,14 @@ const tools = [
             type: "string",
             description: "The city name (e.g., London, Paris).",
           },
+          units: {
+            type: "string",
+            enum: ["celsius", "fahrenheit"],
+            description:
+              "Units the temperature will be returned in. Always ask the user to confirm which units",
+          },
         },
-        required: ["location"],
+        required: ["location", "units"],
       },
     },
   },
@@ -66,7 +48,7 @@ const tools = [
     function: {
       name: "updateSegmentProfile",
       description:
-        "Update the user profile in segment with the new trait values for example when someone says their shoe size is different from what you were expecting",
+        "Update the user profile in segment with the new trait values for example when someone says their name is different from what you were expecting you should offer to update this for them",
       parameters: {
         type: "object",
         properties: {
@@ -90,31 +72,9 @@ const tools = [
   {
     type: "function",
     function: {
-      name: "sendSMSOrderConfirmation",
-      description: "Send an SMS containing details about the order",
-      say: "Sure thing, sendign an SMS confirmation now.",
-      parameters: {
-        type: "object",
-        properties: {
-          number: {
-            type: "string",
-            description: "the phone number of the caller",
-          },
-          order: {
-            type: "string",
-            description: "the latest order from the caller",
-          },
-        },
-        required: ["number", "order"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
       name: "getOrder",
-      description: "Check what food items were ordered",
-      say: "No problem I'll take a look at that now",
+      description:
+        "Retrieve the last order someone has placed you should prioritize this function call above checking the delivery time if they have not retrieved the order yet",
       parameters: {
         type: "object",
         properties: {
@@ -122,12 +82,8 @@ const tools = [
             type: "string",
             description: "the phone number of the caller",
           },
-          order: {
-            type: "string",
-            description: "the latest order from the caller",
-          },
         },
-        required: ["number", "order"],
+        required: ["number"],
       },
     },
   },
@@ -135,8 +91,8 @@ const tools = [
     type: "function",
     function: {
       name: "checkOrderDeliveryTime",
-      description: "Check the estimated order delivery time",
-      say: "Let me check the estimated delivery time",
+      description:
+        "Get the estimated order delivery time only call this function when someone is looking to understand when their order will be delivered",
       parameters: {
         type: "object",
         properties: {
@@ -144,12 +100,54 @@ const tools = [
             type: "string",
             description: "the phone number of the caller",
           },
-          order: {
+          // order: {
+          //   type: "object",
+          //   description:
+          //     "this an order if you don't already have this information you'll need to retrieve it first",
+          // },
+        },
+        required: ["number"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "sendSMSOrderConfirmation",
+      description:
+        "Send an SMS containing details about the last order that was place you must make sure to get the order information and the estimed delivery time before attempting to send an sms message, you must also confirm they actually want to receive the SMS message before sending",
+      parameters: {
+        type: "object",
+        properties: {
+          number: {
             type: "string",
-            description: "the latest order from the caller",
+            description: "the phone number of the caller",
+          },
+          firstName: {
+            type: "string",
+            description: "first name of the caller",
+          },
+          orderProduct: {
+            type: "string",
+            description: "${order?.products[0]?.name}",
+          },
+          orderId: {
+            type: "string",
+            description: "${order?.orderID}",
+          },
+          deliveryTime: {
+            type: "string",
+            description:
+              "this is the expected delivery time for the order do not guess this time make sure you know the delivery time",
           },
         },
-        required: ["number", "order"],
+        required: [
+          "number",
+          "firstName",
+          "orderId",
+          "orderProduct",
+          "deliveryTime",
+        ],
       },
     },
   },

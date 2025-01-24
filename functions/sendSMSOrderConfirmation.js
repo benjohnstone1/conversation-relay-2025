@@ -3,8 +3,14 @@ require("dotenv").config();
 
 async function sendSMSOrderConfirmation(functionArgs) {
   const order = functionArgs.order; // where do we get this order number?
-  const number = functionArgs.number; // we already have this
-  console.log("GPT -> called placeOrder function: ", order);
+  const number = functionArgs.number;
+  const firstName = functionArgs.firstName;
+  const deliveryTime = functionArgs.deliveryTime;
+  const orderProduct = functionArgs.orderProduct;
+  const orderId = functionArgs.orderId;
+  const orderValue = functionArgs.orderValue;
+
+  console.log("GPT -> called sendSMSOrderConfirmation function: ", order);
 
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -20,7 +26,7 @@ async function sendSMSOrderConfirmation(functionArgs) {
   // Send SMS using Twilio
   client.messages
     .create({
-      body: `Your order number is ${orderNum}, and the details: ${order}`,
+      body: `Hi ${firstName}, your order number is ${orderId}, you ordered the ${orderProduct} & it is expected to arrive in ${deliveryTime}. Enjoy!`,
       from: process.env.FROM_NUMBER,
       to: number,
     })
@@ -28,8 +34,7 @@ async function sendSMSOrderConfirmation(functionArgs) {
     .catch((err) => console.error(err));
 
   return JSON.stringify({
-    orderNumber: orderNum,
-    message: "the order is confirmed in the system.",
+    message: "we have sent the sms confirmation with details of the delivery",
   });
 }
 

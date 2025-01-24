@@ -126,7 +126,7 @@ class GptService extends EventEmitter {
 
         const functionToCall = availableFunctions[functionName];
         const validatedArgs = this.validateFunctionArgs(functionArgs);
-        // console.log('validatedArgs', validatedArgs);
+        console.log("validatedArgs", validatedArgs);
 
         // Say a pre-configured message from the function manifest
         // before running the function.
@@ -138,9 +138,20 @@ class GptService extends EventEmitter {
         this.emit("gptreply", say, false, interactionCount);
 
         let functionResponse = await functionToCall(validatedArgs);
+        // if (functionName === "getOrder") {
+        //   this.userContext.push(
+        //     "system",
+        //     `The customers order details are the following ${functionResponse} use this order object when sending SMS confirmation`
+        //   );
+        // }
 
         // console.log('functionResponse', functionResponse)
-        this.emit("tools", functionName, functionArgs, functionResponse);
+        this.emit(
+          "tools",
+          functionName,
+          JSON.stringify(validatedArgs), //changed from functionArgs
+          functionResponse
+        );
 
         // Step 4: send the info on the function call and function response to GPT
         this.updateUserContext(functionName, "function", functionResponse);

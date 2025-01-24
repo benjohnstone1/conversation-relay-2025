@@ -393,31 +393,35 @@ app.ws("/sockets", (ws) => {
     gptService.on(
       "tools",
       async (functionName, functionArgs, functionResponse) => {
-        addLog("gpt", `Function ${functionName} with args ${functionArgs}`);
-        addLog("gpt", `Function Response: ${functionResponse}`);
+        try {
+          addLog("gpt", `Function ${functionName} with args ${functionArgs}`);
+          addLog("gpt", `Function Response: ${functionResponse}`);
 
-        let msg = {
-          type: "functionCall",
-          token: `Called function ${functionName} with args ${functionArgs}`,
-          // update this message
-        };
-        sendEventToClient(wsClient, msg);
+          let msg = {
+            type: "functionCall",
+            token: `Called function ${functionName} with args ${functionArgs}`,
+            // update this message
+          };
+          sendEventToClient(wsClient, msg);
 
-        // Add function call to Segment
-        let trackEvent = {
-          name: functionName,
-          ...msg,
-          function_arguments: JSON.parse(functionArgs),
-          function_response: JSON.parse(functionResponse),
-        };
-        addInteraction(caller, `Function Called`, trackEvent);
-        addInteraction(caller, `Function Called`, trackEvent, true);
+          // Add function call to Segment
+          let trackEvent = {
+            name: functionName,
+            ...msg,
+            function_arguments: JSON.parse(functionArgs),
+            function_response: JSON.parse(functionResponse),
+          };
+          addInteraction(caller, `Function Called`, trackEvent);
+          addInteraction(caller, `Function Called`, trackEvent, true);
 
-        if (functionName == "changeLanguage" && record.changeSTT) {
-          addLog("convrelay", `convrelay ChangeLanguage to: ${functionArgs}`);
-          let jsonObj = JSON.parse(functionArgs);
-          textService.setLang(jsonObj.language);
-          // gptService.userContext.push({ 'role': 'assistant', 'content':`change Language to ${functionArgs}`});
+          if (functionName == "changeLanguage" && record.changeSTT) {
+            addLog("convrelay", `convrelay ChangeLanguage to: ${functionArgs}`);
+            let jsonObj = JSON.parse(functionArgs);
+            textService.setLang(jsonObj.language);
+            // gptService.userContext.push({ 'role': 'assistant', 'content':`change Language to ${functionArgs}`});
+          }
+        } catch (e) {
+          console.log(e);
         }
       }
     );
