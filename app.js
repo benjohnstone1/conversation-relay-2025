@@ -158,7 +158,7 @@ app.get("/get-recording", async (req, res) => {
 });
 
 app.post("/incoming", async (req, res) => {
-  // console.log('/incoming req', req)
+  // console.log('/incoming req', req.body)
   try {
     logs.length = 0; // Clear logs
     addLog("info", "incoming call started");
@@ -193,7 +193,9 @@ app.post("/incoming", async (req, res) => {
 
     console.log(`prompt returned: ${JSON.stringify(prompt)}`.red);
 
-    addInteraction(user, 'Call with Agent: Start', record)
+    const {Caller, CallSid} = req.body
+    const callContext = {...record, ...req.body}
+    addInteraction(user, 'Call with Agent: Start', callContext)
 
     // add virtual agent
     // this creates or identifies the agent profile
@@ -353,6 +355,7 @@ app.ws("/sockets", (ws) => {
       }
 
       if (msg.type === "interrupt") {
+        const callContext = {...msg, caller, callSid}
         addLog(
           "convrelay",
           "convrelay interrupt: utteranceUntilInterrupt: " +
@@ -360,8 +363,8 @@ app.ws("/sockets", (ws) => {
             " durationUntilInterruptMs: " +
             msg.durationUntilInterruptMs
         );
-        addInteraction(caller, `Call Interrupted`, msg);
-        addInteraction(caller, `Call Interrupted`, msg, true);
+        addInteraction(caller, `Call Interrupted`, callContext);
+        addInteraction(caller, `Call Interrupted`, callContext, true);
         gptService.interrupt();
       }
 
