@@ -7,6 +7,7 @@ import audiovisualizer from "./templates/audiovisualizer";
 // import ReactAudioVisualizer from "./components/ReactAudioVisualizer";
 // import LatencyVisualizer from "./components/LatencyVisualizer";
 // import AudioProcessor from "./AudioProcessor.ts";
+import KrispAudioNoiseCancellation from "./components/KrispAudioNoiseCancellation";
 
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
@@ -21,21 +22,20 @@ import {
   Stack,
   InPageNavigation,
   InPageNavigationItem,
+  Switch,
 } from "@twilio-paste/core";
-
-// import { Switch } from "@twilio-paste/core";
 
 import UseCasePicker from "./components/UseCasePicker";
 
 export const VoxrayPhone = () => {
   const [device, setDevice] = useState();
   const [loading, setLoading] = useState(true);
-  // const [noiseCancellation, setNoiseCancellation] = useState(false);
+  const [noiseCancellation, setNoiseCancellation] = useState(false);
   const [phone, setPhone] = useState("");
   const [whichPage, setWhichPage] = useState(true);
 
   let voiceToken = useRef("");
-  // const processor = new AudioProcessor();
+  const processor = new KrispAudioNoiseCancellation();
 
   const registerTwilioDeviceHandlers = (device) => {
     device.on("incoming", function (conn) {
@@ -72,25 +72,25 @@ export const VoxrayPhone = () => {
     });
   };
 
-  // const enableAudioProcessor = async () => {
-  //   if (!device.audio._processor) {
-  //     await device.audio.addProcessor(processor);
-  //     console.log("Added audio processor");
-  //     setNoiseCancellation(true); // this is causing the issue
-  //   } else {
-  //     console.log("Audio processor already enabled");
-  //   }
-  // };
+  const enableAudioProcessor = async () => {
+    if (!device.audio._processor) {
+      await device.audio.addProcessor(processor);
+      console.log("Added audio processor");
+      setNoiseCancellation(true); // this is causing the issue
+    } else {
+      console.log("Audio processor already enabled");
+    }
+  };
 
-  // const disableAudioProcessor = async () => {
-  //   if (device.audio._processor) {
-  //     await device.audio.removeProcessor(device.audio._processor);
-  //     console.log("Disabled audio processor");
-  //     setNoiseCancellation(false); // this is causing the issue
-  //   } else {
-  //     console.log("No audio processor to remove");
-  //   }
-  // };
+  const disableAudioProcessor = async () => {
+    if (device.audio._processor) {
+      await device.audio.removeProcessor(device.audio._processor);
+      console.log("Disabled audio processor");
+      setNoiseCancellation(false); // this is causing the issue
+    } else {
+      console.log("No audio processor to remove");
+    }
+  };
 
   const createVoiceDevice = async () => {
     const myDevice = await new Device(voiceToken.current, {
@@ -145,7 +145,7 @@ export const VoxrayPhone = () => {
                 </div>
               ) : (
                 <div>
-                  {/* <Switch
+                  <Switch
                     value={noiseCancellation}
                     onClick={(e) => {
                       noiseCancellation === false
@@ -154,7 +154,7 @@ export const VoxrayPhone = () => {
                     }}
                   >
                     Enable Noise Cancellation
-                  </Switch> */}
+                  </Switch>
                 </div>
               )}
 
