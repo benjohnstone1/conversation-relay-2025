@@ -134,7 +134,7 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
     const CSAT = operatorResultsResponse.find((or) => or.name === "CSAT");
 
     const conversationSummary = operatorResultsResponse.find(
-      (or) => or.operator_sid === "LY8d2be74b94a34733b28594fadf331f0c"
+      (or) => or.operatorSid === "LY8d2be74b94a34733b28594fadf331f0c"
     );
 
     console.log("CSAT" + CSAT);
@@ -154,7 +154,7 @@ const voiceIntelligenceHandler = async (transcriptSid) => {
       viOperators: {
         "Sentiment Analysis": `${sentimentAnalysisVal}`,
         CSAT: `${CSAT?.textGenerationResults?.result}`,
-        "Conversation Summary": `${conversationSummary?.result}`,
+        "Conversation Summary": `${conversationSummary?.textGenerationResults?.result}`,
       },
       transcript: transcriptText,
     };
