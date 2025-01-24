@@ -193,7 +193,7 @@ app.post("/incoming", async (req, res) => {
 
     console.log(`prompt returned: ${JSON.stringify(prompt)}`.red);
 
-    addInteraction(user, 'Call with Agent: Start', ...record)
+    addInteraction(user, 'Call with Agent: Start', record)
 
     // add virtual agent
     // this creates or identifies the agent profile
