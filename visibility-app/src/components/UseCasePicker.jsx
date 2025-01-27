@@ -273,7 +273,7 @@ const UseCasePicker = (props) => {
       }
     };
     getConfig();
-  }, [useCaseURL, personalized]);
+  }, [useCaseURL, personalizedUseCaseURL, personalized]);
 
   return (
     <div>
