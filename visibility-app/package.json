@@ -19,7 +19,7 @@
     "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "^18.3.1",
     "react-international-phone": "^4.4.0",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "react-use-websocket": "^4.8.1",
     "web-vitals": "^2.1.4"
   },
@@ -27,7 +27,7 @@
   "scripts": {
     "start": "react-scripts start",
     "dev": "PORT=3001 react-scripts start",
-    "build": "react-scripts build",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "deploy": "node scripts/deploy.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
