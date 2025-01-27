@@ -27,6 +27,7 @@ const { traitInputScaleGuidelines } = require("./services/prompt");
 
 const {
   getLatestRecords,
+  getPersonalized,
   updateLatestRecord,
   getRecordByTitle,
 } = require("./services/airtable-service");
@@ -93,6 +94,12 @@ app.get("/get-use-cases", async (req, res) => {
   //   title: 'Personalized Agent'
   // };
   // records.push(recordFromProfile);
+  res.json(records);
+});
+
+// Route to retrieve Airtable records
+app.get("/get-personalized-use-case", async (req, res) => {
+  records = await getPersonalized();
   res.json(records);
 });
 

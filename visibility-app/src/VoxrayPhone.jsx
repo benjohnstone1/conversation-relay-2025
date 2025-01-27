@@ -33,6 +33,7 @@ export const VoxrayPhone = () => {
   // const [noiseCancellation, setNoiseCancellation] = useState(false);
   const [phone, setPhone] = useState("");
   const [whichPage, setWhichPage] = useState(true);
+  const [personalized, setPersonalized] = useState(false);
 
   let voiceToken = useRef("");
   // const processor = new AudioProcessor();
@@ -163,6 +164,7 @@ export const VoxrayPhone = () => {
                   currentPage={whichPage}
                   onClick={() => {
                     setWhichPage(true);
+                    setPersonalized(false);
                   }}
                 >
                   A/B Testing
@@ -171,6 +173,7 @@ export const VoxrayPhone = () => {
                   currentPage={!whichPage}
                   onClick={() => {
                     setWhichPage(false);
+                    setPersonalized(true);
                   }}
                 >
                   Personalized Agent
@@ -178,12 +181,24 @@ export const VoxrayPhone = () => {
               </InPageNavigation>
               {whichPage ? (
                 <div>
-                  <UseCasePicker device={device} loading={loading} />
+                  <UseCasePicker
+                    personalized={personalized}
+                    device={device}
+                    loading={loading}
+                  />
                   <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
                   <canvas id="audio-visualizer"></canvas>
                 </div>
               ) : (
-                <div></div>
+                <div>
+                  <UseCasePicker
+                    personalized={personalized}
+                    device={device}
+                    loading={loading}
+                  />
+                  <Label htmlFor="audio-visualizer">Audio Visualizer</Label>
+                  <canvas id="audio-visualizer"></canvas>
+                </div>
               )}
 
               {/* <ReactAudioVisualizer /> */}

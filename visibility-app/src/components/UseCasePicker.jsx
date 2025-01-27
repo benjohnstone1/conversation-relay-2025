@@ -31,6 +31,8 @@ const UseCasePicker = (props) => {
   const visualizerRef = useRef();
 
   const useCaseURL = process.env.REACT_APP_GET_USE_CASE_URL;
+  const personalizedUseCaseURL = process.env.REACT_APP_GET_PERSONALIZED;
+
   // const updateURL = process.env.REACT_APP_UPDATE_USE_CASE_URL;
   const recordingURL = process.env.REACT_APP_RECORDING_URL;
 
@@ -46,6 +48,7 @@ const UseCasePicker = (props) => {
 
   const device = props.device;
   const loading = props.loading;
+  const personalized = props.personalized;
 
   const toaster = useToaster();
 
@@ -253,8 +256,16 @@ const UseCasePicker = (props) => {
 
   useEffect(() => {
     const getConfig = async () => {
+      let url;
       try {
-        const config = await axios.get(useCaseURL);
+        console.log("personzalized is", personalized);
+        if (personalized) {
+          url = personalizedUseCaseURL;
+        } else {
+          url = useCaseURL;
+        }
+
+        const config = await axios.get(url);
         console.log(config.data);
         setConfig(config.data);
       } catch (e) {
@@ -262,7 +273,7 @@ const UseCasePicker = (props) => {
       }
     };
     getConfig();
-  }, [useCaseURL]);
+  }, [useCaseURL, personalized]);
 
   return (
     <div>

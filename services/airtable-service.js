@@ -5,6 +5,10 @@ const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
   process.env.AIRTABLE_BASE_ID
 );
 
+// const personalizedBase = new Airtable({
+//   apiKey: process.env.AIRTABLE_API_KEY,
+// }).base(process.env.AIRTABLE_BASE_ID_PERSONALIZED);
+
 async function getRecordByTitle(data) {
   try {
     let records = await base("builder")
@@ -108,6 +112,63 @@ async function getLatestRecords() {
       };
       recArr.push(recordObj);
     }
+    console.log(recArr);
+    return recArr;
+  } catch (error) {
+    console.error("Error fetching record:", error);
+    throw error;
+  }
+}
+
+async function getPersonalized() {
+  try {
+    let records = await base("personalizedAgent")
+      .select({
+        // maxRecords: 1,
+        sort: [{ field: "Title", direction: "asc" }],
+      })
+      .firstPage();
+
+    if (records.length === 0) {
+      throw new Error("No records found");
+    }
+    let recArr = [];
+    for (var i = 0; i < records.length; i++) {
+      let recordObj = {
+        conversationRelayParams: {
+          dtmfDetection: records[i].get("dtmfDetection") || false, // undefined if unchecked so set to false
+          interruptByDtmf: records[i].get("interruptByDtmf") || false,
+          interruptible: records[i].get("interruptible") || false,
+          language: records[i].get("Language") || "en-US",
+          profanityFilter: records[i].get("profanityFilter") || false,
+          speechModel: records[i].get("speechModel") || "nova-2-general",
+          transcriptionProvider:
+            records[i].get("transcriptionProvider") || "deepgram",
+          ttsProvider: records[i].get("ttsProvider") || "google",
+          voice: records[i].get("Voice") || "en-US-Journey-0",
+          welcomeGreeting:
+            records[i].get("welcomeGreeting") || "Hello, how can I help?",
+        },
+        prompt: records[i].get("Prompt") || "",
+        profile: records[i].get("User Profile") || "",
+        orders: records[i].get("Orders") || "",
+        inventory: records[i].get("Inventory") || "",
+        example: records[i].get("Example") || "",
+        model: records[i].get("Model") || "",
+        changeSTT: records[i].get("SPIChangeSTT") || false,
+        recording: records[i].get("Recording") || false,
+        tools: records[i].get("tools") || "",
+        title: records[i].get("Title"),
+        brevity: records[i].get("Brevity") || 0,
+        formality: records[i].get("Formality") || 0,
+        rizz: records[i].get("Rizz") || 0,
+        genZ: records[i].get("GenZ") || 0,
+        grumpiness: records[i].get("Grumpiness") || 0,
+        pirate: records[i].get("Pirate") || 0,
+      };
+      recArr.push(recordObj);
+    }
+    console.log(recArr);
     return recArr;
   } catch (error) {
     console.error("Error fetching record:", error);
@@ -191,7 +252,9 @@ async function updateLatestRecord(data) {
 
 module.exports = {
   base,
+  // personalizedBase,
   updateLatestRecord,
   getLatestRecords,
   getRecordByTitle,
+  getPersonalized,
 };
