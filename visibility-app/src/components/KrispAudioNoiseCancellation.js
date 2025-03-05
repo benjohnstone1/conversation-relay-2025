@@ -41,8 +41,9 @@ class KrispAudioNoiseCancellation {
       { audioContext, stream },
       () => {
         // Ready callback
-        console.log("Audioprocessor is ready");
         this.filterNode.enable();
+        console.log("Audioprocessor is ready");
+        // we should update the component to show when this is ready
       }
     );
 

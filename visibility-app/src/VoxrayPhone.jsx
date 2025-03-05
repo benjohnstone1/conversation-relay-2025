@@ -76,7 +76,8 @@ export const VoxrayPhone = () => {
     if (!device.audio._processor) {
       await device.audio.addProcessor(processor);
       console.log("Added audio processor");
-      setNoiseCancellation(true); // this is causing the issue
+      console.log("check is ready: ", processor.checkReady());
+      setNoiseCancellation(true);
     } else {
       console.log("Audio processor already enabled");
     }
