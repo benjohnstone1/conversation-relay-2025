@@ -8,6 +8,7 @@ import audiovisualizer from "./templates/audiovisualizer";
 // import LatencyVisualizer from "./components/LatencyVisualizer";
 // import AudioProcessor from "./AudioProcessor.ts";
 import KrispAudioNoiseCancellation from "./components/KrispAudioNoiseCancellation";
+import NoiseCancellation from "./components/NoiseCancellation";
 
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
@@ -35,7 +36,8 @@ export const VoxrayPhone = () => {
   const [whichPage, setWhichPage] = useState(true);
 
   let voiceToken = useRef("");
-  const processor = new KrispAudioNoiseCancellation();
+  // const processor = new KrispAudioNoiseCancellation();
+  const processor = new NoiseCancellation();
 
   const registerTwilioDeviceHandlers = (device) => {
     device.on("incoming", function (conn) {
@@ -76,7 +78,6 @@ export const VoxrayPhone = () => {
     if (!device.audio._processor) {
       await device.audio.addProcessor(processor);
       console.log("Added audio processor");
-      console.log("check is ready: ", processor.checkReady());
       setNoiseCancellation(true);
     } else {
       console.log("Audio processor already enabled");
