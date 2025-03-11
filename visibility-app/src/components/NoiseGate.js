@@ -27,8 +27,6 @@ class NoiseGate {
 
     let threshold = 10;
     if (volumeLevel < threshold) {
-      //   console.log("volume: ", volumeLevel);
-
       gainNode.gain.value = 0; // Mute the audio if below threshold
     } else {
       gainNode.gain.value = 1; // Full volume
@@ -43,13 +41,11 @@ class NoiseGate {
     // Apply processing here
     // Create an analyser node to get frequency data
     this.analyser = this.audioContext.createAnalyser(); // measure the data
-    // this.analyser.fftSize = 2048; // Set the FFT size for better frequency resolution
     this.source.connect(this.analyser);
 
     // Create a GainNode to simulate a noise gate
     this.gainNode = this.audioContext.createGain();
     this.analyser.connect(this.gainNode);
-    // this.gainNode.connect(this.audioContext.destination); //causing echo
 
     // Use setInterval to apply noise gate logic every 50ms (or adjust as needed)
     const intervalId = setInterval(() => {
@@ -68,9 +64,6 @@ class NoiseGate {
     }
     if (this.gainNode) {
       this.gainNode.disconnect();
-    }
-    if (this.filterNode) {
-      this.filterNode.disconnect();
     }
     if (this.analyser) {
       this.analyser.disconnect();
