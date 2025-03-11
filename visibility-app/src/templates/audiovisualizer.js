@@ -51,6 +51,7 @@ function draw() {
   for (let i = 0; i < bufferLength; i++) {
     // The values have been scaled properly
     let localBarHeight = localVolumeBuffer[(bufferIndex + i) % bufferLength];
+    // array of volume values - how does it get inputted?
     let remoteBarHeight = remoteVolumeBuffer[(bufferIndex + i) % bufferLength];
 
     let markerValue = markerBuffer[(bufferIndex + i) % bufferLength];
@@ -82,6 +83,7 @@ function draw() {
       // canvasContext.fillStyle = 'rgb(200, 50, 50)';
       canvasContext.fillStyle = "rgb(200, 52, 36)";
       // canvasContext.fillRect(xPosition, canvasHeight - localBarHeight, barWidth, localBarHeight);
+
       canvasContext.fillRect(
         xPosition + barGapWidth,
         canvasHeight - localBarHeight,
@@ -136,13 +138,22 @@ function analyze(call) {
     let volumeLevel =
       ((inputVolume - minInputVolume) / (maxInputVolume - minInputVolume)) *
       maxValue;
+
     volumeLevel = Math.max(0, Math.min(maxValue, volumeLevel)); // Clamp the value between 0 and 255
+
+    // create noiseGate threshhold
+    let threshHold = 30;
+    if (volumeLevel < threshHold) {
+      volumeLevel = 0;
+    }
 
     // Map outputVolume from the range [minOutputVolume, maxOutputVolume] to the range [0, 255]
     let remoteVolumeLevel =
       ((outputVolume - minOutputVolume) / (maxOutputVolume - minOutputVolume)) *
       maxValue;
     remoteVolumeLevel = Math.max(0, Math.min(maxValue, remoteVolumeLevel)); // Clamp the value between 0 and 255
+
+    // console.log("vol level ", volumeLevel, "remote vol", remoteVolumeLevel);
 
     // Add the volume level to the buffer
     localVolumeBuffer[bufferIndex] = volumeLevel;

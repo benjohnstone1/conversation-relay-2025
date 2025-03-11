@@ -38,7 +38,7 @@ const Visualizer = forwardRef((props, ref) => {
     socket.onmessage = function (event) {
       let message;
       const data = JSON.parse(event.data);
-      console.log(data);
+      // console.log(data);
 
       if (data.type === "setup" && data.token) {
         updateWebsocketId(data.token);

@@ -98,6 +98,16 @@ export const VoxrayPhone = () => {
     const myDevice = await new Device(voiceToken.current, {
       logLevel: 5,
       codecPreferences: ["opus", "pcmu"],
+      // enableRtpKeepAlive: true, // Enable RTP keep-alive
+      // audioConstraints: {
+      //   echoCancellation: true, // Enable echo cancellation
+      //   noiseSuppression: true, // Enable noise suppression (built-in WebRTC feature)
+      //   autoGainControl: true, // Enable automatic gain control
+      //   googEchoCancellation: true, //see https://help.twilio.com/articles/223180868-Constrain-WebRTC-Call-Audio-Sources-in-Google-Chrome
+      //   googAutoGainControl: true,
+      //   googNoiseSuppression: true,
+      //   googHighpassFilter: true,
+      // },
     });
     setDevice(myDevice);
     setLoading(false);
