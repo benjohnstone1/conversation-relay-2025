@@ -7,8 +7,8 @@ import audiovisualizer from "./templates/audiovisualizer";
 // import ReactAudioVisualizer from "./components/ReactAudioVisualizer";
 // import LatencyVisualizer from "./components/LatencyVisualizer";
 // import AudioProcessor from "./AudioProcessor.ts";
-import KrispAudioNoiseCancellation from "./components/KrispAudioNoiseCancellation";
-import NoiseCancellation from "./components/NoiseCancellation";
+// import KrispAudioNoiseCancellation from "./components/KrispAudioNoiseCancellation";
+import NoiseCancellation from "./components/NoiseGate";
 
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";

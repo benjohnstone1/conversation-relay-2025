@@ -1,6 +1,6 @@
 let audioContext;
 
-class NoiseCancellation {
+class NoiseGate {
   constructor() {
     // if (!audioContext) {
     //   const audioContext = new AudioContext();
@@ -81,4 +81,4 @@ class NoiseCancellation {
   }
 }
 
-export default NoiseCancellation;
+export default NoiseGate;
