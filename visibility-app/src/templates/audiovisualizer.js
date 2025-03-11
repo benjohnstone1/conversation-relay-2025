@@ -141,11 +141,11 @@ function analyze(call) {
 
     volumeLevel = Math.max(0, Math.min(maxValue, volumeLevel)); // Clamp the value between 0 and 255
 
-    // create noiseGate threshhold
-    let threshHold = 30;
-    if (volumeLevel < threshHold) {
-      volumeLevel = 0;
-    }
+    // create noiseGate threshhold - however should handle this on the actual mediaStream instead
+    // let threshHold = 30;
+    // if (volumeLevel < threshHold) {
+    //   volumeLevel = 0;
+    // }
 
     // Map outputVolume from the range [minOutputVolume, maxOutputVolume] to the range [0, 255]
     let remoteVolumeLevel =
